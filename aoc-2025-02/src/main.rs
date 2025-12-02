@@ -1,5 +1,12 @@
+#[cfg(feature = "jemalloc")]
+#[global_allocator]
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
 mod input;
 use input::INPUT;
+
+#[cfg(feature = "profile")]
+use std::time::Instant;
 
 const PRIMES: [usize; 10] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
 
@@ -78,12 +85,20 @@ impl TryFrom<u64> for RepeatedPatternInteger {
 }
 
 struct RepeatedPatternIntegerCounter {
+    #[cfg(not(feature = "sum-only"))]
     pub found: Vec<RepeatedPatternInteger>,
+    #[cfg(feature = "sum-only")]
+    pub sum: u64,
 }
 
 impl RepeatedPatternIntegerCounter {
+    #[cfg(not(feature = "sum-only"))]
     pub fn new() -> Self {
         Self { found: vec![] }
+    }
+    #[cfg(feature = "sum-only")]
+    pub fn new() -> Self {
+        Self { sum: 0 }
     }
 
     pub fn search_iterable_and_add(&mut self, iterable: impl Iterator<Item = u64>) {
@@ -91,7 +106,14 @@ impl RepeatedPatternIntegerCounter {
             // Currently only supports R=2
             RepeatedPatternInteger::try_from(item)
                 .and_then(|rpi| {
-                    self.found.push(rpi);
+                    #[cfg(feature = "sum-only")]
+                    {
+                        self.sum += rpi.value;
+                    }
+                    #[cfg(not(feature = "sum-only"))]
+                    {
+                        self.found.push(rpi);
+                    }
                     Ok(())
                 })
                 .unwrap_or_default();
@@ -99,20 +121,51 @@ impl RepeatedPatternIntegerCounter {
     }
 
     pub fn sum(&self) -> u64 {
-        self.found.iter().map(|rpi| rpi.value).sum()
+        #[cfg(feature = "sum-only")]
+        {
+            self.sum
+        }
+
+        #[cfg(not(feature = "sum-only"))]
+        {
+            self.found.iter().map(|rpi| rpi.value).sum()
+        }
     }
 }
 
 fn main() {
+    #[cfg(feature = "jemalloc")]
+    {
+        eprintln!("Using jemalloc as the global allocator");
+    }
+    #[cfg(not(feature = "jemalloc"))]
+    {
+        eprintln!("Using the default global allocator");
+    }
+
+    #[cfg(feature = "profile")]
+    let start_time = Instant::now();
+
     let iterables = split_input_into_iterables(INPUT);
 
     let mut counter = RepeatedPatternIntegerCounter::new();
     for iterable in iterables {
+        #[cfg(feature = "profile-per-loop")]
+        let iteration_time = Instant::now();
         counter.search_iterable_and_add(iterable);
+        #[cfg(feature = "profile-per-loop")]
+        {
+            eprintln!("Time taken for iteration: {:?}", iteration_time.elapsed());
+        }
     }
 
     let sum = counter.sum();
     println!("Sum of all repeated pattern integers: {}", sum);
+
+    #[cfg(feature = "profile")]
+    {
+        eprintln!("Total time taken: {:?}", start_time.elapsed());
+    }
 }
 
 #[cfg(test)]

@@ -3,5 +3,18 @@ name = "aoc-2025-02"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+defaults = ["jemalloc"]
+profile-per-loop = ["profile"]
+profile = []
+sum-only = []
+jemalloc = ["dep-tikv-jemallocator"]
+dep-tikv-jemallocator = ["tikv-jemallocator"]
+
 [dependencies]
 anyhow = "1.0.100"
+tikv-jemallocator = { version="0.6.1", optional=true }
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
