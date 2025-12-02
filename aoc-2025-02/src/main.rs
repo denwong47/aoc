@@ -16,6 +16,10 @@ fn split_input_into_iterables(
     })
 }
 
+fn generate_mask(pattern_length: usize, repeats: usize) -> u64 {
+    (0..repeats).fold(0u64, |acc, i| acc + 10u64.pow((i * pattern_length) as u32))
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct RepeatedPatternInteger {
     pub value: u64,
@@ -36,23 +40,20 @@ impl RepeatedPatternInteger {
 
         let pattern_length = digit_count / repeats;
 
-        let possible_pattern = value % 10u64.pow(pattern_length as u32);
-        let mut reconstructed_value = value;
+        // Special thanks to Mr Kushagra Raina for suggesting the use of a mask.
+        let mask = generate_mask(pattern_length, repeats);
 
-        while reconstructed_value > 0 {
-            let current_segment = reconstructed_value % 10u64.pow(pattern_length as u32);
-            if current_segment != possible_pattern {
-                return Err(anyhow::anyhow!(
-                    "Value {} does not have a repeated pattern of length {}",
-                    value,
-                    repeats
-                ));
-            }
-            reconstructed_value /= 10u64.pow(pattern_length as u32);
+        if value % mask != 0 {
+            return Err(anyhow::anyhow!(
+                "Value {} is not a repeated pattern integer for repeats {}",
+                value,
+                repeats
+            ));
         }
+
         Ok(Self {
             value,
-            pattern: possible_pattern,
+            pattern: value / mask,
             repeats,
         })
     }
@@ -198,4 +199,24 @@ mod test_repeated_pattern_integer_counter {
 
         assert_eq!(sum, 4174379265);
     }
+}
+
+#[cfg(test)]
+mod test_generate_mask {
+    use super::*;
+
+    macro_rules! create_test {
+        ($name:ident(pattern_length=$pattern_length:literal, repeats=$repeats:literal) = $expected:expr) => {
+            #[test]
+            fn $name() {
+                let result = generate_mask($pattern_length, $repeats);
+                assert_eq!(result, $expected);
+            }
+        };
+    }
+
+    create_test!(test_mask_2x2(pattern_length = 2, repeats = 2) = 101);
+    create_test!(test_mask_3x2(pattern_length = 3, repeats = 2) = 1001);
+    create_test!(test_mask_2x3(pattern_length = 2, repeats = 3) = 10101);
+    create_test!(test_mask_1x5(pattern_length = 1, repeats = 5) = 11111);
 }
