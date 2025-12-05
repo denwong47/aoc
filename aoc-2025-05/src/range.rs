@@ -65,7 +65,7 @@ impl StringRange {
         value_padded >= self.start && value_padded <= self.end
     }
 
-    pub fn get_size(&self) -> usize {
+    pub fn get_size(&self) -> u128 {
         let unchecked = self
             .start
             .chars()
@@ -80,7 +80,7 @@ impl StringRange {
             });
 
         assert!(unchecked >= 0, "Range size must be positive");
-        (unchecked + 1) as usize
+        (unchecked + 1) as u128
     }
 
     /// Static method to combine two ranges into one encompassing range if possible.

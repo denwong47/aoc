@@ -94,10 +94,11 @@ fn main() {
 
     #[cfg(feature = "profile")]
     let combine_start_time = Instant::now();
-    let range_sizes = combine::combine_ranges(ranges.iter())
+    let total_range_size = combine::combine_ranges(ranges.iter())
         .iter()
         .map(|range| range.get_size())
-        .collect::<Vec<_>>();
+        .sum::<u128>();
+
     #[cfg(feature = "profile")]
     {
         let duration = Instant::now() - combine_start_time;
@@ -107,5 +108,5 @@ fn main() {
     println!("Number of values within ranges: {}", count);
     println!("Number of values outside ranges: {}", values.len() - count);
 
-    println!("Sizes of ranges: {:?}", range_sizes.iter().sum::<usize>());
+    println!("Sizes of ranges: {:?}", total_range_size);
 }
