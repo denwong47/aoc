@@ -75,8 +75,12 @@ impl StringRange {
             .fold(0_i64, |acc, (idx, (s_char, e_char))| {
                 // This tolerates non-digit characters, but this is currently untested.
                 let diff = e_char as i64 - s_char as i64;
-                acc.checked_add(diff * 10_i64.pow(idx as u32))
-                    .expect("Range size overflowed i64; range too large to compute size")
+                if diff != 0 {
+                    acc.checked_add(diff * 10_i64.pow(idx as u32))
+                        .expect("Range size overflowed i64; range too large to compute size")
+                } else {
+                    acc
+                }
             });
 
         assert!(unchecked >= 0, "Range size must be positive");
@@ -168,6 +172,10 @@ mod test_struct_contains {
     create_test!(test_edge_start("100" in ("100", "200")) = true);
     create_test!(test_edge_end("200" in ("100", "200")) = true);
     create_test!(test_exact_match("123" in ("123", "123")) = true);
+    create_test!(test_larger_than_u128_max_positive("123340282366920938463463374607431768211455" in ("110000000000000000000000000000000000000000", "130000000000000000000000000000000000000000")) = true);
+    create_test!(test_larger_than_u128_max_negative("133340282366920938463463374607431768211455" in ("110000000000000000000000000000000000000000", "130000000000000000000000000000000000000000")) = false);
+    create_test!(test_larger_than_u128_range("109999999999999999999999999999999999999999" in ("0", "110000000000000000000000000000000000000000")) = true);
+    create_test!(test_larger_than_u128_range_above("130000000000000000000000000000000000000000" in ("0", "110000000000000000000000000000000000000000")) = false);
 }
 
 #[cfg(test)]
@@ -244,6 +252,13 @@ mod test_struct_size {
     create_size_test!(test_size_100_200("100", "200") == 101);
     create_size_test!(test_size_1_1000("1", "1000") == 1000);
     create_size_test!(test_size_99_101("99", "101") == 3);
+    create_size_test!(test_size_u64_max("18446744073709551615", "18446744073709551617") == 3);
+    create_size_test!(
+        test_size_large(
+            "340282366920938463463374607431768211455",
+            "340282366920938463463374607431968211455"
+        ) == 200000001
+    );
 }
 
 #[cfg(test)]
