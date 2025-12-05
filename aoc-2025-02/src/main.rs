@@ -37,7 +37,7 @@ struct RepeatedPatternInteger {
 impl RepeatedPatternInteger {
     pub fn try_from_value_and_repeats(value: u64, repeats: usize) -> Result<Self, anyhow::Error> {
         let digit_count = (value as f32).log10().floor() as usize + 1;
-        if digit_count % repeats != 0 {
+        if !digit_count.is_multiple_of(repeats) {
             return Err(anyhow::anyhow!(
                 "Value {} does not have a divisible digit count for pattern length {}",
                 value,
@@ -50,7 +50,7 @@ impl RepeatedPatternInteger {
         // Special thanks to Mr Kushagra Raina for suggesting the use of a mask.
         let mask = generate_mask(pattern_length, repeats);
 
-        if value % mask != 0 {
+        if !value.is_multiple_of(mask) {
             return Err(anyhow::anyhow!(
                 "Value {} is not a repeated pattern integer for repeats {}",
                 value,
@@ -105,7 +105,7 @@ impl RepeatedPatternIntegerCounter {
         for item in iterable {
             // Currently only supports R=2
             RepeatedPatternInteger::try_from(item)
-                .and_then(|rpi| {
+                .map(|rpi| {
                     #[cfg(feature = "sum-only")]
                     {
                         self.sum += rpi.value;
@@ -114,7 +114,6 @@ impl RepeatedPatternIntegerCounter {
                     {
                         self.found.push(rpi);
                     }
-                    Ok(())
                 })
                 .unwrap_or_default();
         }

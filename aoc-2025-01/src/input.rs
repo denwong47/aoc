@@ -1,4 +1,4 @@
-pub const INPUT: &'static str = "R21
+pub const INPUT: &str = "R21
 R37
 L39
 L11

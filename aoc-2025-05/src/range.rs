@@ -23,12 +23,12 @@ impl StringRange {
         let max_len = start.len().max(end.len());
         let start_padded = pad_string(start, max_len);
         let end_padded = pad_string(end, max_len);
-        if &end_padded < &start_padded {
+        if end_padded < start_padded {
             anyhow::bail!("end must be greater than or equal to start");
         }
         Ok(Self {
-            min_len: min_len,
-            max_len: max_len,
+            min_len,
+            max_len,
             start: start_padded,
             end: end_padded,
         })
@@ -62,7 +62,7 @@ impl StringRange {
             );
         }
         // Inclusive range check
-        &value_padded >= &self.start && &value_padded <= &self.end
+        value_padded >= self.start && value_padded <= self.end
     }
 
     pub fn get_size(&self) -> usize {
@@ -80,7 +80,7 @@ impl StringRange {
             });
 
         assert!(unchecked >= 0, "Range size must be positive");
-        return (unchecked + 1) as usize;
+        (unchecked + 1) as usize
     }
 
     /// Static method to combine two ranges into one encompassing range if possible.

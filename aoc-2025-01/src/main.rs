@@ -31,7 +31,7 @@ impl<const S: u16> Wheel<S> {
         let size = S as i32;
 
         let mut raw_position = position % size;
-        let mut revolutions = (position / size).abs() as u16;
+        let mut revolutions = (position / size).unsigned_abs() as u16;
 
         if raw_position <= 0 && (self.position > 0 && direction == 'L') {
             revolutions += 1;

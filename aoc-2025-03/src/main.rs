@@ -19,9 +19,7 @@ impl HighestSequentialCombination for VecDeque<u8> {
             }
             if self[pos] < self[pos + 1] {
                 self.remove(pos);
-                if pos > 0 {
-                    pos -= 1;
-                }
+                pos = pos.saturating_sub(1);
             } else {
                 pos += 1;
             }
