@@ -1,0 +1,15 @@
+[package]
+name = "aoc-2025-07"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+trace = []
+profile = []
+non-std-hash = ["fxhash"]
+fxhash = ["dep:fxhash"]
+nohash = []
+
+[dependencies]
+anyhow = "1.0.100"
+fxhash = { version = "0.2.1", optional = true }
