@@ -1,0 +1,11 @@
+[package]
+name = "simple-graph"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+trace = []
+
+[dependencies]
+num-traits = "0.2.19"
+thiserror = "2.0.17"
