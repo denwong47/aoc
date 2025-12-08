@@ -21,6 +21,7 @@
 //!
 //! For example:
 //!
+//! ```text
 //! 162,817,812
 //! 57,618,57
 //! 906,360,560
@@ -41,6 +42,7 @@
 //! 862,61,35
 //! 984,92,344
 //! 425,690,689
+//!```
 //!
 //! This list describes the position of 20 junction boxes, one per line. Each position
 //! is given as X,Y,Z coordinates. So, the first junction box in the list is at X=162,

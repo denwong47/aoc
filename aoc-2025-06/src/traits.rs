@@ -25,12 +25,15 @@ impl AddToBuffer for u16 {
 }
 
 impl AddToBuffer for Vec<Option<u8>> {
-    /// Part 2: Each character is added as an Option<u8> to the buffer.
+    /// Part 2: Each character is added as an [`Option<u8>`] to the buffer.
     ///
-    /// ' ' (space) is represented as None, digits are Some(digit).
+    /// ' ' (space) is represented as [`None`], digits are [`Some(digit)`].
     ///
     /// If the position of the character is important, whitespace can be represented as
-    /// `Some(0)` if needed.
+    /// [`Some(0)`] if needed.
+    ///
+    /// [`Some(digit)`]: std::option::Option::Some
+    /// [`Some(0)`]: std::option::Option::Some
     fn add_to_buffer(&mut self, input: char) -> anyhow::Result<char> {
         match input {
             ' ' => self.push(None),
