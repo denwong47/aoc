@@ -1,4 +1,4 @@
-//! --- Day 7: Laboratories ---
+//! # Day 7: **Laboratories**
 //!
 //! You thank the cephalopods for the help and exit the trash compactor, finding
 //! yourself in the familiar halls of a North Pole research wing.
@@ -146,7 +146,7 @@
 //! Analyze your manifold diagram. How many times will the beam be split?
 //!
 //! Your puzzle answer was 1675.
-//! --- Part Two ---
+//! ## Part Two
 //!
 //! With your analysis of the manifold complete, you begin fixing the teleporter.
 //! However, as you open the side of the teleporter to replace the broken manifold, you

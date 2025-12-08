@@ -1,0 +1,14 @@
+[package]
+name = "aoc-2025-08"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+profile = []
+trace = []
+
+[dependencies]
+anyhow = "1.0.100"
+fxhash = "0.2.1"
+kdtree = "0.8.0"
+uuid = { version = "1.19.0", features = ["v4"] }
