@@ -1,3 +1,3 @@
 [workspace]
-members=["aoc-2025-01", "aoc-2025-02", "aoc-2025-03", "aoc-2025-05", "aoc-2025-06", "aoc-2025-07", "aoc-2025-08", "aoc-2025-09", "simple-graph"]
+members=["aoc-2025-01", "aoc-2025-02", "aoc-2025-03", "aoc-2025-05", "aoc-2025-06", "aoc-2025-07", "aoc-2025-08", "aoc-2025-09", "simple-graph", "tessellation-fill"]
 resolver = "3"
