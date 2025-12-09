@@ -1,0 +1,12 @@
+[package]
+name = "aoc-2025-09"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+trace = []
+profile = []
+
+[dependencies]
+anyhow = "1.0.100"
+itertools = "0.14.0"
