@@ -1,0 +1,24 @@
+[package]
+name = "aoc-2025-10"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+trace = []
+progress = ["kdam"]
+kdam = ["dep:kdam"]
+jemalloc = ["tikv-jemallocator"]
+tikv-jemallocator = ["dep:tikv-jemallocator"]
+milp = ["good_lp", "coin_cbc"]
+good_lp = ["dep:good_lp"]
+coin_cbc = ["dep:coin_cbc"]
+
+[dependencies]
+anyhow = "1.0.100"
+coin_cbc = { version = "0.1.8", optional = true }
+fxhash = "0.2.1"
+good_lp = { version = "1.14.2", optional = true, features = ["coin_cbc"] }
+itertools = "0.14.0"
+kdam = { version = "0.6.3", optional = true, features = ["gradient"] }
+num-traits = "0.2.19"
+tikv-jemallocator = { version = "0.6.1", optional = true }

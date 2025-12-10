@@ -12,6 +12,11 @@
 # Contains mutation testing data
 **/mutants.out*/
 
+# Flamegraph
+**/flamegraph.svg
+**/perf.data
+**/perf.data.old
+
 # ========== Zig ============
 **/.zig-cache/
 **/zig-out/
