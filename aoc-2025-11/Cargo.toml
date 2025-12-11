@@ -1,0 +1,11 @@
+[package]
+name = "aoc-2025-11"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+trace = ["simple-graph/trace"]
+
+[dependencies]
+anyhow = "1.0.100"
+simple-graph = { version = "0.1.0", path = "../simple-graph" }
