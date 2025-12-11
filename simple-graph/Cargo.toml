@@ -5,7 +5,9 @@ edition = "2024"
 
 [features]
 trace = []
+dfs-count = []
 
 [dependencies]
+fxhash = "0.2.1"
 num-traits = "0.2.19"
 thiserror = "2.0.17"

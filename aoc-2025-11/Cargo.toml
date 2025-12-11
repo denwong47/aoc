@@ -1,0 +1,17 @@
+[package]
+name = "aoc-2025-11"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+profile = []
+assert-truth = []
+trace = ["simple-graph/trace"]
+jemalloc = ["tikv-jemallocator"]
+tikv-jemallocator = ["dep:tikv-jemallocator"]
+
+[dependencies]
+anyhow = "1.0.100"
+fxhash = "0.2.1"
+simple-graph = { version = "0.1.0", path = "../simple-graph", features=["dfs-count"] }
+tikv-jemallocator = { version = "0.6.1", optional = true }

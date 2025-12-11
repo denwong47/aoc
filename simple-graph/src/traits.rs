@@ -16,3 +16,15 @@ where
         get_node_by_key: impl Fn(&K) -> Option<&'s Self>,
     ) -> impl Iterator<Item = (&'s Self, D)>;
 }
+
+pub trait IsNodeWithIndexedNeighbours<'s, K, D>: IsNode<'s, K, D>
+where
+    K: Debug + Clone + Eq + Hash + 's,
+    D: Zero + Ord + Clone + Debug,
+{
+    fn get_neighbour(
+        &'s self,
+        index: usize,
+        get_node_by_key: impl Fn(&K) -> Option<&'s Self>,
+    ) -> Option<(&'s Self, D)>;
+}
