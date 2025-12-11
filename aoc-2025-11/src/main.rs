@@ -55,36 +55,36 @@ fn count_number_of_solutions(
 
 fn part_2_solutions_count(
     devices: &HashMap<models::DeviceId, models::Device>,
-    start_id: &models::DeviceId,
-    destination_id: &models::DeviceId,
 ) -> anyhow::Result<usize> {
+    let inverted_devices = models::invert_device_map(devices);
+
     let svr_to_dac_count =
-        count_number_of_solutions(&devices, start_id, DAC, &[&destination_id, FFT])
+        count_number_of_solutions(&inverted_devices, DAC, SERVER_RACK, &[&DESTINATION, FFT])
             .expect("Failed to count number of solutions from SVR to DAC");
     println!("Number of paths from SVR to DAC: {}", svr_to_dac_count);
 
     let svr_to_fft_count =
-        count_number_of_solutions(&devices, start_id, FFT, &[&destination_id, DAC])
+        count_number_of_solutions(&inverted_devices, FFT, SERVER_RACK, &[&DESTINATION, DAC])
             .expect("Failed to count number of solutions from SVR to FFT");
     println!("Number of paths from SVR to FFT: {}", svr_to_fft_count);
 
     let dac_to_fft_count =
-        count_number_of_solutions(&devices, DAC, FFT, &[&destination_id, start_id])
+        count_number_of_solutions(&inverted_devices, FFT, DAC, &[&DESTINATION, SERVER_RACK])
             .expect("Failed to count number of solutions from DAC to FFT");
     println!("Number of paths from DAC to FFT: {}", dac_to_fft_count);
 
     let fft_to_dac_count =
-        count_number_of_solutions(&devices, FFT, DAC, &[&destination_id, start_id])
+        count_number_of_solutions(&inverted_devices, DAC, FFT, &[&DESTINATION, SERVER_RACK])
             .expect("Failed to count number of solutions from FFT to DAC");
     println!("Number of paths from FFT to DAC: {}", fft_to_dac_count);
 
     let dac_to_out_count =
-        count_number_of_solutions(&devices, DAC, &destination_id, &[start_id, FFT])
+        count_number_of_solutions(&inverted_devices, DESTINATION, DAC, &[SERVER_RACK, FFT])
             .expect("Failed to count number of solutions from DAC to OUT");
     println!("Number of paths from DAC to OUT: {}", dac_to_out_count);
 
     let fft_to_out_count =
-        count_number_of_solutions(&devices, FFT, &destination_id, &[start_id, DAC])
+        count_number_of_solutions(&inverted_devices, DESTINATION, FFT, &[SERVER_RACK, DAC])
             .expect("Failed to count number of solutions from FFT to OUT");
     println!("Number of paths from FFT to OUT: {}", fft_to_out_count);
 
@@ -123,7 +123,7 @@ fn main() {
 
     '_part2: {
         let solution_count =
-            part_2_solutions_count(&devices, SERVER_RACK, &destination_id)
+            part_2_solutions_count(&devices)
                 .expect("Failed to count number of solutions for Part 2");
         println!("Part 2: Total number of valid paths: {}", solution_count);
     }
@@ -215,7 +215,7 @@ mod test {
     fn test_part2() {
         let devices = build_devices(PART2_INPUT).expect("Failed to build devices from test input");
         let solution_count =
-            part_2_solutions_count(&devices, SERVER_RACK, DESTINATION)
+            part_2_solutions_count(&devices)
                 .expect("Failed to count number of solutions for Part 2");
         assert_eq!(solution_count, 2);
     }
