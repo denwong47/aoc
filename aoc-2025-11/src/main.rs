@@ -3,32 +3,34 @@
 static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 pub mod models;
-use std::collections::HashMap;
 
 mod input;
 use input::INPUT;
 
-const START: &'static models::DeviceId = &['y', 'o', 'u'];
-const DESTINATION: &'static models::DeviceId = &['o', 'u', 't'];
+use crate::models::DeviceMap;
 
-const SERVER_RACK: &'static models::DeviceId = &['s', 'v', 'r'];
-const DAC: &'static models::DeviceId = &['d', 'a', 'c'];
-const FFT: &'static models::DeviceId = &['f', 'f', 't'];
+const START: &str = "you";
+const DESTINATION: &str = "out";
 
-fn build_devices(input: &str) -> anyhow::Result<HashMap<models::DeviceId, models::Device>> {
+const SERVER_RACK: &str = "svr";
+const DAC: &str = "dac";
+const FFT: &str = "fft";
+
+fn build_devices(input: &str) -> anyhow::Result<models::DeviceMap> {
     let mut map = models::text_to_devices(input)?;
 
+    let destination_id = models::str_to_device_id(DESTINATION);
     map.insert(
-        *DESTINATION,
-        models::Device::new(*DESTINATION, std::iter::empty()),
+        destination_id,
+        models::Device::new(destination_id, std::iter::empty()),
     );
     Ok(map)
 }
 
 fn count_number_of_solutions(
-    devices: &HashMap<models::DeviceId, models::Device>,
-    start_id: &models::DeviceId,
-    destination_id: &models::DeviceId,
+    devices: &DeviceMap,
+    start_id: models::DeviceId,
+    destination_id: models::DeviceId,
     avoid: &[&models::DeviceId],
 ) -> anyhow::Result<usize> {
     let mut private_devices = devices.clone();
@@ -36,59 +38,63 @@ fn count_number_of_solutions(
         private_devices.remove(*avoid_id);
     }
 
-    let get_node_by_key = |key: &models::DeviceId| private_devices.get(key);
-
     let mut dfs = simple_graph::Dfs::<models::DeviceId, models::Distance, models::Device>::new(
         private_devices
-            .get(start_id)
+            .get(&start_id)
             .ok_or_else(|| anyhow::anyhow!("Start node not found"))?,
         private_devices
-            .get(destination_id)
+            .get(&destination_id)
             .ok_or_else(|| anyhow::anyhow!("Start node not found"))?,
-        get_node_by_key,
+        |key| private_devices.get(key),
     )?;
 
     let mut solution_count: usize = 0;
-    while let Some(solution) = dfs.next_solution(get_node_by_key.clone()) {
+    while let Some(_solution) = dfs.next_solution(|key| private_devices.get(key)) {
         solution_count += 1;
-        eprintln!("Found solution #{:?}", solution.0.into_iter().map(|k| k.iter().collect::<String>()).collect::<Vec<String>>());
+        #[cfg(feature = "trace")]
+        eprintln!("Found solution #{:?}", _solution.0.to_vec());
     }
 
     Ok(solution_count)
 }
 
 fn part_2_solutions_count(
-    devices: &HashMap<models::DeviceId, models::Device>,
+    devices: &models::DeviceMap,
 ) -> anyhow::Result<usize> {
     let inverted_devices = models::invert_device_map(devices);
 
+    let server_rack_id = models::str_to_device_id(SERVER_RACK);
+    let destination_id = models::str_to_device_id(DESTINATION);
+    let dac_id = models::str_to_device_id(DAC);
+    let fft_id = models::str_to_device_id(FFT);
+
     let svr_to_dac_count =
-        count_number_of_solutions(&inverted_devices, DAC, SERVER_RACK, &[&DESTINATION, FFT])
+        count_number_of_solutions(&inverted_devices, dac_id, server_rack_id, &[&destination_id, &fft_id])
             .expect("Failed to count number of solutions from SVR to DAC");
     println!("Number of paths from SVR to DAC: {}", svr_to_dac_count);
 
     let svr_to_fft_count =
-        count_number_of_solutions(&inverted_devices, FFT, SERVER_RACK, &[&DESTINATION, DAC])
+        count_number_of_solutions(&inverted_devices, fft_id, server_rack_id, &[&destination_id, &dac_id])
             .expect("Failed to count number of solutions from SVR to FFT");
     println!("Number of paths from SVR to FFT: {}", svr_to_fft_count);
 
     let dac_to_fft_count =
-        count_number_of_solutions(&inverted_devices, FFT, DAC, &[&DESTINATION, SERVER_RACK])
+        count_number_of_solutions(&inverted_devices, fft_id, dac_id, &[&destination_id, &server_rack_id])
             .expect("Failed to count number of solutions from DAC to FFT");
     println!("Number of paths from DAC to FFT: {}", dac_to_fft_count);
 
     let fft_to_dac_count =
-        count_number_of_solutions(&inverted_devices, DAC, FFT, &[&DESTINATION, SERVER_RACK])
+        count_number_of_solutions(&inverted_devices, dac_id, fft_id, &[&destination_id, &server_rack_id])
             .expect("Failed to count number of solutions from FFT to DAC");
     println!("Number of paths from FFT to DAC: {}", fft_to_dac_count);
 
     let dac_to_out_count =
-        count_number_of_solutions(&inverted_devices, DESTINATION, DAC, &[SERVER_RACK, FFT])
+        count_number_of_solutions(&inverted_devices, destination_id, dac_id, &[&server_rack_id, &fft_id])
             .expect("Failed to count number of solutions from DAC to OUT");
     println!("Number of paths from DAC to OUT: {}", dac_to_out_count);
 
     let fft_to_out_count =
-        count_number_of_solutions(&inverted_devices, DESTINATION, FFT, &[SERVER_RACK, DAC])
+        count_number_of_solutions(&inverted_devices, destination_id, fft_id, &[&server_rack_id, &dac_id])
             .expect("Failed to count number of solutions from FFT to OUT");
     println!("Number of paths from FFT to OUT: {}", fft_to_out_count);
 
@@ -116,10 +122,11 @@ fn part_2_solutions_count(
 fn main() {
     let devices = build_devices(INPUT).expect("Failed to build devices from input");
 
-    let destination_id = *DESTINATION;
+    let start_id = models::str_to_device_id(START);
+    let destination_id = models::str_to_device_id(DESTINATION);
 
     '_part1: {
-        let solution_count = count_number_of_solutions(&devices, START, &destination_id, &[])
+        let solution_count = count_number_of_solutions(&devices, start_id, destination_id, &[])
             .expect("Failed to count number of solutions for Part 1");
 
         println!("Part 1: Total number of distinct paths: {}", solution_count);
@@ -167,25 +174,27 @@ mod test {
     fn test_parsing() {
         let devices = build_devices(PART1_INPUT).expect("Failed to build devices from test input");
         assert_eq!(devices.len(), 11);
-        assert!(devices.contains_key(&['a', 'a', 'a']));
-        assert!(devices.contains_key(&['y', 'o', 'u']));
-        assert!(devices.contains_key(&['b', 'b', 'b']));
-        assert!(devices.contains_key(&['c', 'c', 'c']));
-        assert!(devices.contains_key(&['d', 'd', 'd']));
-        assert!(devices.contains_key(&['e', 'e', 'e']));
-        assert!(devices.contains_key(&['f', 'f', 'f']));
-        assert!(devices.contains_key(&['g', 'g', 'g']));
-        assert!(devices.contains_key(&['h', 'h', 'h']));
-        assert!(devices.contains_key(&['i', 'i', 'i']));
-        assert!(devices.contains_key(&['o', 'u', 't']));
+        assert!(devices.contains_key(&models::str_to_device_id("aaa")));
+        assert!(devices.contains_key(&models::str_to_device_id("you")));
+        assert!(devices.contains_key(&models::str_to_device_id("bbb")));
+        assert!(devices.contains_key(&models::str_to_device_id("ccc")));
+        assert!(devices.contains_key(&models::str_to_device_id("ddd")));
+        assert!(devices.contains_key(&models::str_to_device_id("eee")));
+        assert!(devices.contains_key(&models::str_to_device_id("fff")));
+        assert!(devices.contains_key(&models::str_to_device_id("ggg")));
+        assert!(devices.contains_key(&models::str_to_device_id("hhh")));
+        assert!(devices.contains_key(&models::str_to_device_id("iii")));
+        assert!(devices.contains_key(&models::str_to_device_id("out")));
     }
 
     #[test]
     fn test_part1() {
         let devices = build_devices(PART1_INPUT).expect("Failed to build devices from test input");
 
-        let start_device = devices.get(START).expect("Start device not found");
-        let destination_id = *DESTINATION;
+        let start_id = models::str_to_device_id(START);
+        let destination_id = models::str_to_device_id(DESTINATION);
+        let start_device = devices.get(&start_id).expect("Start device not found");
+        let destination_id = destination_id;
 
         let get_node_by_key = |key: &models::DeviceId| devices.get(key);
         let mut dfs = simple_graph::Dfs::new(

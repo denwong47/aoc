@@ -62,6 +62,7 @@ where
         &mut self,
         get_node_by_key: impl Fn(&K) -> Option<&'s N>,
     ) -> Option<Self> {
+        self.popped_count += 1;
         self.unvisited_neighbours.pop().map(|(node, distance)| {
             Self::new(
                 node,

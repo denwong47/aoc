@@ -1,10 +1,10 @@
 use simple_graph::traits;
 use std::collections::HashMap;
 
-pub type DeviceId = [char; 3];
+pub type DeviceId = u32;
 pub type Distance = u32;
 
-pub type DeviceMap = HashMap<DeviceId, Device>;
+pub type DeviceMap = fxhash::FxHashMap<DeviceId, Device>;
 
 #[derive(Debug, Clone)]
 pub struct Device {
@@ -48,12 +48,9 @@ impl<'s> traits::IsNode<'s, DeviceId, u32> for Device {
     }
 }
 
-pub fn str_to_device_id(s: &str) -> anyhow::Result<DeviceId> {
+pub fn str_to_device_id(s: &str) -> DeviceId {
     let chars: Vec<char> = s.trim().chars().collect();
-    if chars.len() != 3 {
-        return Err(anyhow::anyhow!("Invalid device ID length: {}", s));
-    }
-    Ok([chars[0], chars[1], chars[2]])
+    ((chars[0] as u32) << 16) | ((chars[1] as u32) << 8) | (chars[2] as u32)
 }
 
 /// Breaks down lines of ``ccc: ddd eee fff`` into [`Device`] objects
@@ -61,12 +58,12 @@ pub fn line_to_device(line: &str) -> anyhow::Result<Device> {
     line.split_once(": ")
         .ok_or_else(|| anyhow::anyhow!("Invalid line format: {}", line))
         .and_then(|(id_str, neighbours_str)| {
-            let id = str_to_device_id(id_str)?;
+            let id = str_to_device_id(id_str);
             let neighbours = neighbours_str
                 .trim()
                 .split_whitespace()
                 .map(str_to_device_id)
-                .collect::<anyhow::Result<Vec<_>>>()?;
+                .collect::<Vec<_>>();
             Ok(Device::new(id, neighbours.into_iter()))
         })
 }
@@ -84,8 +81,8 @@ pub fn text_to_devices(input: &str) -> anyhow::Result<DeviceMap> {
     Ok(devices)
 }
 
-pub fn invert_device_map(map: &DeviceMap) -> HashMap<DeviceId, Device> {
-    let mut inverted: HashMap<DeviceId, Device> = HashMap::new();
+pub fn invert_device_map(map: &DeviceMap) -> DeviceMap {
+    let mut inverted: DeviceMap = DeviceMap::default();
 
     for (device_id, device) in map.iter() {
         inverted
@@ -126,19 +123,19 @@ mod test_invert_device_map {
         let devices = text_to_devices(INPUT).expect("Failed to parse devices from input");
         let inverted = invert_device_map(&devices);
 
-        assert_eq!(inverted[&['s', 'v', 'r']].connected_devices.len(), 0);
-        assert_eq!(inverted[&['a', 'a', 'a']].connected_devices, vec![['s', 'v', 'r']]);
-        assert_eq!(inverted[&['b', 'b', 'b']].connected_devices, vec![['s', 'v', 'r']]);
-        assert_eq!(inverted[&['f', 'f', 't']].connected_devices, vec![['a', 'a', 'a']]);
-        assert_eq!(inverted[&['t', 't', 'y']].connected_devices, vec![['b', 'b', 'b']]);
-        assert_eq!(inverted[&['c', 'c', 'c']].connected_devices, vec![['t', 't', 'y'], ['f', 'f', 't']]);
-        assert_eq!(inverted[&['d', 'd', 'd']].connected_devices, vec![['c', 'c', 'c']]);
-        assert_eq!(inverted[&['e', 'e', 'e']].connected_devices, vec![['c', 'c', 'c']]);
-        assert_eq!(inverted[&['h', 'u', 'b']].connected_devices, vec![['d', 'd', 'd']]);
-        assert_eq!(inverted[&['d', 'a', 'c']].connected_devices, vec![['e', 'e', 'e']]);
-        assert_eq!(inverted[&['f', 'f', 'f']].connected_devices, vec![['h', 'u', 'b'], ['d', 'a', 'c']]);
-        assert_eq!(inverted[&['g', 'g', 'g']].connected_devices, vec![['f', 'f', 'f']]);
-        assert_eq!(inverted[&['h', 'h', 'h']].connected_devices, vec![['f', 'f', 'f']]);
-        assert_eq!(inverted[&['o', 'u', 't']].connected_devices, vec![['g', 'g', 'g'], ['h', 'h', 'h']]);
+        assert_eq!(inverted[&str_to_device_id("svr")].connected_devices.len(), 0);
+        assert_eq!(inverted[&str_to_device_id("aaa")].connected_devices, vec![str_to_device_id("svr")]);
+        assert_eq!(inverted[&str_to_device_id("bbb")].connected_devices, vec![str_to_device_id("svr")]);
+        assert_eq!(inverted[&str_to_device_id("fft")].connected_devices, vec![str_to_device_id("aaa")]);
+        assert_eq!(inverted[&str_to_device_id("tty")].connected_devices, vec![str_to_device_id("bbb")]);
+        assert_eq!(inverted[&str_to_device_id("ccc")].connected_devices, vec![str_to_device_id("fft"), str_to_device_id("tty")]);
+        assert_eq!(inverted[&str_to_device_id("ddd")].connected_devices, vec![str_to_device_id("ccc")]);
+        assert_eq!(inverted[&str_to_device_id("eee")].connected_devices, vec![str_to_device_id("ccc")]);
+        assert_eq!(inverted[&str_to_device_id("hub")].connected_devices, vec![str_to_device_id("ddd")]);
+        assert_eq!(inverted[&str_to_device_id("dac")].connected_devices, vec![str_to_device_id("eee")]);
+        assert_eq!(inverted[&str_to_device_id("fff")].connected_devices, vec![str_to_device_id("hub"), str_to_device_id("dac")]);
+        assert_eq!(inverted[&str_to_device_id("ggg")].connected_devices, vec![str_to_device_id("fff")]);
+        assert_eq!(inverted[&str_to_device_id("hhh")].connected_devices, vec![str_to_device_id("fff")]);
+        assert_eq!(inverted[&str_to_device_id("out")].connected_devices, vec![str_to_device_id("ggg"), str_to_device_id("hhh")]);
     }       
 }

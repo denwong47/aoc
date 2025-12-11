@@ -105,6 +105,7 @@ name = "aoc-2025-11"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "fxhash",
  "simple-graph",
  "tikv-jemallocator",
 ]
