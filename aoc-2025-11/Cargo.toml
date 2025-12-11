@@ -5,7 +5,10 @@ edition = "2024"
 
 [features]
 trace = ["simple-graph/trace"]
+jemalloc = ["tikv-jemallocator"]
+tikv-jemallocator = ["dep:tikv-jemallocator"]
 
 [dependencies]
 anyhow = "1.0.100"
 simple-graph = { version = "0.1.0", path = "../simple-graph" }
+tikv-jemallocator = { version = "0.6.1", optional = true }

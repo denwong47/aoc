@@ -1,3 +1,7 @@
+#[cfg(feature = "jemalloc")]
+#[global_allocator]
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
 pub mod models;
 use std::collections::HashMap;
 
@@ -47,7 +51,7 @@ fn count_number_of_solutions(
     let mut solution_count: usize = 0;
     while let Some(solution) = dfs.next_solution(get_node_by_key.clone()) {
         solution_count += 1;
-        println!("Found solution #{:?}", solution.0.into_iter().map(|k| k.iter().collect::<String>()).collect::<Vec<String>>());
+        eprintln!("Found solution #{:?}", solution.0.into_iter().map(|k| k.iter().collect::<String>()).collect::<Vec<String>>());
     }
 
     Ok(solution_count)
