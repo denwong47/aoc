@@ -1,0 +1,16 @@
+[package]
+name = "aoc-2025-12"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = ["compute"]
+trace = []
+compute = []
+
+[dependencies]
+anyhow = "1.0.100"
+bitvec_simd = "0.20.5"
+fxhash = "0.2.1"
+itertools = "0.14.0"
+kdam = { version = "0.6.3" }
