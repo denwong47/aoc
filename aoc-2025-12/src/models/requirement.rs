@@ -1,6 +1,6 @@
 use crate::models::ShapeBuilder;
 
-use super::{Container, ShapeCounts};
+use super::{Container, ShapeCounts, StateStorage};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Requirement<const S: usize> {
@@ -83,5 +83,21 @@ impl<const S: usize> Requirement<S> {
 
     pub fn total_shape_count(&self) -> usize {
         self.shape_counts.iter().sum()
+    }
+
+    pub fn build_new_state_storage(&self) -> StateStorage {
+        StateStorage::zeros(self.container.size() + self.total_shape_count())
+    }
+
+    /// Build a mask with `1`s at the instance portion of the state storage.
+    pub fn build_instance_state_mask(&self) -> StateStorage {
+        let vector_size = self.container.size();
+        let mut mask = self.build_new_state_storage();
+
+        for i in vector_size..mask.len() {
+            mask.set(i, true);
+        }
+
+        mask
     }
 }

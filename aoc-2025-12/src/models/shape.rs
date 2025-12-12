@@ -2,10 +2,7 @@ use std::str::Lines;
 
 use itertools::Itertools;
 
-pub type InnerShape = [bool; 9];
-
-pub const FILLED_DISPLAY: char = '█';
-pub const EMPTY_DISPLAY: char = '░';
+use super::{EMPTY_DISPLAY, FILLED_DISPLAY, InnerShape};
 
 fn rotate_right(inner_shape: &InnerShape) -> InnerShape {
     [
@@ -139,7 +136,6 @@ impl ShapeBuilder {
                 "From \x1b[36mShapeBuilder #{}\x1b[0m generated shapes:",
                 self.index
             );
-            let width = 9; // "ROT  270 | FLIP   0 "
 
             (0..5).for_each(|row| {
                 eprint!("\u{2502} ");
@@ -160,7 +156,7 @@ impl ShapeBuilder {
                             );
                         }
                         2 | 3 | 4 => {
-                            eprint!("{:^width$}", shape.display_line(row - 2));
+                            eprint!("   {}   ", shape.display_line(row - 2));
                         }
                         _ => {
                             unreachable!()

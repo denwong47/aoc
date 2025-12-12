@@ -7,10 +7,16 @@ edition = "2024"
 default = ["compute"]
 trace = []
 compute = []
+cheat = []
+progress = []
+jemalloc = ["tikv-jemallocator"]
+tikv-jemallocator = ["dep:tikv-jemallocator"]
 
 [dependencies]
 anyhow = "1.0.100"
+bitvec = "1.0.1"
 bitvec_simd = "0.20.5"
 fxhash = "0.2.1"
 itertools = "0.14.0"
 kdam = { version = "0.6.3" }
+tikv-jemallocator = { version = "0.6.1", optional = true }
