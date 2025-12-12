@@ -62,6 +62,21 @@ fn main() {
         }
 
         for (requirement_index, requirement) in requirements.into_iter().enumerate() {
+            use crate::models::helpers;
+
+            #[cfg(feature = "cheat")]
+            {
+                if !requirements_that_can_be_fulfilled
+                    .contains(&requirement_index)
+                {
+                    println!(
+                        "Skipping requirement #{} as it cannot possibly fit.",
+                        requirement_index
+                    );
+                    continue;
+                }
+            }
+
             let placements = models::build_placements_for_requirement(&shapes, &requirement);
 
             println!(
@@ -80,6 +95,10 @@ fn main() {
                 if can_fulfill.is_some() { "32" } else { "31" },
                 format!("{:?}", can_fulfill)
             );
+            if let Some(solution) = can_fulfill {
+                println!("{}", helpers::SolutionDisplay::new(&shapes, &placements, solution));
+            }
+                
             #[cfg(feature = "cheat")]
             {
                 let should_fulfill =
@@ -91,8 +110,6 @@ fn main() {
                     should_fulfill
                 );
             }
-
-            break;
         }
     }
 }

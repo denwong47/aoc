@@ -415,7 +415,7 @@ pub fn find_one_fulfillment<const S: usize>(
             // since algorithmically we can only reach this depth if we have a solution.
             count if count == total_shape_count && step_state.is_solution() => {
                 #[cfg(feature = "trace")]
-                println!("{}", step_state);
+                eprintln!("{}", step_state);
 
                 #[cfg(feature = "progress")]
                 eprintln!(
