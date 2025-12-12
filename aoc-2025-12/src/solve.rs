@@ -2,11 +2,19 @@ use itertools::Itertools;
 
 use crate::models::{self, PlacementMask, StateStorage, helpers};
 
-#[cfg(feature="progress")]
+#[cfg(feature = "cached-conflicts")]
+use kdam::tqdm;
+
+#[cfg(feature = "progress")]
 use std::time::Instant;
 
 #[cfg(doc)]
 use crate::models::{Container, Requirement};
+
+/// Check if two state storages have any conflicting bits set.
+fn is_conflict(state1: &StateStorage, state2: &StateStorage) -> bool {
+    !state1.and_cloned(state2).is_empty()
+}
 
 /// A private struct to hold the current state during the step-wise search for a fulfillment path.
 struct StepStateStore<'r, const S: usize> {
@@ -42,7 +50,12 @@ struct StepStateStore<'r, const S: usize> {
     ///
     /// This mask has `1`s at the latter portion, allowing quick verification of whether
     /// all instances have been placed.
+    #[cfg(feature = "safeguard")]
     instance_state_mask: StateStorage,
+
+    /// Pre-computed cache of conflicts between placements.
+    #[cfg(feature = "cached-conflicts")]
+    conflicts_cache: Vec<Vec<usize>>,
 }
 
 impl<'r, const S: usize> StepStateStore<'r, S> {
@@ -63,7 +76,10 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
             deactivated_indices: Vec::with_capacity(placements_len.pow(2)),
             undo_log: Vec::with_capacity(placements_len),
             active_mask: models::build_new_placement_mask(placements_len),
+            #[cfg(feature = "safeguard")]
             instance_state_mask: requirement.build_instance_state_mask(),
+            #[cfg(feature = "cached-conflicts")]
+            conflicts_cache: Self::precalculate_conflicts(placements),
         };
 
         instance.insert_placement_if_compatible(FIRST_INDEX, placements);
@@ -73,8 +89,54 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
 
     /// Check if the given placement can be accepted into the current state
     /// without violating any existing placements.
-    pub fn can_accept_placement_of(&self, placement: &models::Placement<S>) -> bool {
-        self.current_state.and_cloned(placement.state()).is_empty()
+    pub fn can_accept_placement_of(
+        &self,
+        placement_id: usize,
+        _placements: &[models::Placement<S>],
+    ) -> bool {
+        #[cfg(feature = "cached-conflicts")]
+        {
+            let known_conflicts = &self.conflicts_cache[placement_id];
+            for path_id in &self.current_path {
+                // If any placement in the current path conflicts with the new placement,
+                // we cannot accept it.
+                if known_conflicts.contains(path_id) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        #[cfg(not(feature = "cached-conflicts"))]
+        {
+            let placement = &_placements[placement_id];
+            !is_conflict(&self.current_state, placement.state())
+        }
+    }
+
+    /// Pre-calulate conflicts between placements for faster lookup.
+    ///
+    /// For the cost of O(n^2) memory and time during initialization,
+    /// we can speed up the conflict detection during placement insertion.
+    #[cfg(feature = "cached-conflicts")]
+    fn precalculate_conflicts(placements: &[models::Placement<S>]) -> Vec<Vec<usize>> {
+        let placement_len = placements.len();
+
+        let mut cached_conflicts = vec![Vec::new(); placement_len];
+        for i in tqdm!(
+            0..placement_len,
+            desc = "Pre-calculating placement conflicts"
+        ) {
+            // Each placement conflicts with itself
+            cached_conflicts[i].push(i);
+            for j in (i + 1)..placement_len {
+                if is_conflict(&placements[i].state(), &placements[j].state()) {
+                    cached_conflicts[i].push(j);
+                    cached_conflicts[j].push(i);
+                }
+            }
+        }
+        cached_conflicts
     }
 
     /// Register the newly deactivated placements into the store, updating
@@ -131,7 +193,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
     fn find_incompatible_placements(&self, placements: &[models::Placement<S>]) -> Vec<usize> {
         self.active_mask
             .iter_ones()
-            .filter(|&idx| !self.can_accept_placement_of(&placements[idx]))
+            .filter(|&idx| !self.can_accept_placement_of(idx, placements))
             .collect_vec()
     }
 
@@ -147,7 +209,8 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
     ) -> bool {
         let placement = &placements[placement_id];
 
-        if !self.can_accept_placement_of(placement) {
+        #[cfg(feature = "safeguard")]
+        if !self.can_accept_placement_of(placement_id, placements) {
             return false;
         }
 
@@ -159,7 +222,9 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
         self.deactivate_placements(newly_eliminated);
 
         // Update the max path, and ensure there is one more entry for the next depth level
-        if self.max_path.len() <= self.current_path.len() +1 && self.max_path.len() < self.requirement.total_shape_count() {
+        if self.max_path.len() <= self.current_path.len() + 1
+            && self.max_path.len() < self.requirement.total_shape_count()
+        {
             self.max_path.push(self.max_path.len());
         } else {
             self.max_path[self.current_path.len() - 1] = placement_id;
@@ -179,7 +244,19 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
     /// Check if the current state represents a complete solution,
     /// i.e., all shape instances have been placed.
     pub fn is_solution(&self) -> bool {
-        self.current_state.and_cloned(&self.instance_state_mask) == self.instance_state_mask
+        #[cfg(feature = "safeguard")]
+        {
+            return self.current_state.and_cloned(&self.instance_state_mask)
+                == self.instance_state_mask;
+        }
+
+        #[cfg(not(feature = "safeguard"))]
+        {
+            // Since algorithmically we can only reach the full placement count
+            // if we have a solution, we can skip the actual check here.
+            // This is a performance optimization.
+            true
+        }
     }
 
     /// Take the current solution path if it is a valid solution.
@@ -236,27 +313,16 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
         } else {
             #[cfg(feature = "trace")]
             eprintln!("No placements to backtrack from");
-            return None;
+            None
         }
     }
 }
 
 impl<'r, const S: usize> std::fmt::Display for StepStateStore<'r, S> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(
-            f,
-            "Current \x1b[1mstate storage\x1b[0m:",
-        )?;
-        writeln!(
-            f,
-            "Current path: \x1b[36m{:?}\x1b[0m",
-            self.current_path
-        )?;
-        writeln!(
-            f,
-            "Max path   : \x1b[31m{:?}\x1b[0m",
-            self.max_path
-        )?;
+        writeln!(f, "Current \x1b[1mstate storage\x1b[0m:",)?;
+        writeln!(f, "Current path: \x1b[36m{:?}\x1b[0m", self.current_path)?;
+        writeln!(f, "Max path   : \x1b[31m{:?}\x1b[0m", self.max_path)?;
         helpers::display_state_storage(&self.current_state, self.requirement, f)
     }
 }
@@ -290,7 +356,9 @@ pub fn find_one_fulfillment<const S: usize>(
     eprintln!("\x1b[2J"); // Clear screen
 
     #[cfg(feature = "progress")]
-    let mut start_time = Instant::now();
+    let start_of_search = Instant::now();
+    #[cfg(feature = "progress")]
+    let mut start_of_interval = Instant::now();
     #[cfg(feature = "progress")]
     let mut iter_counter: usize = 0;
 
@@ -298,18 +366,20 @@ pub fn find_one_fulfillment<const S: usize>(
         #[cfg(feature = "progress")]
         {
             iter_counter += 1;
-            if start_time.elapsed().as_secs() >= 1 {
+            if start_of_interval.elapsed().as_secs() >= 1 {
                 eprintln!("\x1b[1J\x1b[H{}", step_state);
                 eprintln!(
                     "Iterations per second: \x1b[36m{}\x1b[0m",
-                    iter_counter / start_time.elapsed().as_secs() as usize
+                    iter_counter / start_of_interval.elapsed().as_secs() as usize
                 );
-                start_time = Instant::now();
+                start_of_interval = Instant::now();
                 iter_counter = 0;
             }
         }
 
         match step_state.current_path.len() {
+            // Warning: this `is_solution` check is a no-op unless `safeguard` feature is enabled,
+            // since algorithmically we can only reach this depth if we have a solution.
             count if count == total_shape_count && step_state.is_solution() => {
                 #[cfg(feature = "trace")]
                 eprintln!(
@@ -317,10 +387,13 @@ pub fn find_one_fulfillment<const S: usize>(
                     step_state.current_path
                 );
 
-                println!(
-                    "{}", step_state
-                );
+                println!("{}", step_state);
 
+                #[cfg(feature = "progress")]
+                eprintln!(
+                    "Search completed in \x1b[36m{:?}\x1b[0m",
+                    start_of_search.elapsed()
+                );
                 return Ok(Some(step_state.take_current_path()));
             }
             // This really should be unreachable if the algorithm is correct.
@@ -370,7 +443,9 @@ pub fn find_one_fulfillment<const S: usize>(
 
                     if step_state.backtrack(placements).is_none() {
                         #[cfg(feature = "trace")]
-                        eprintln!("\x1b[33mNo more root placements to try\x1b[0m, search exhausted");
+                        eprintln!(
+                            "\x1b[33mNo more root placements to try\x1b[0m, search exhausted"
+                        );
 
                         break;
                     }
@@ -404,7 +479,14 @@ mod test_solve {
                     .expect("Failed to find fulfillment");
 
                 if let Some(fulfillment_path) = fulfillment_result.as_ref() {
-                    println!("{}", helpers::SolutionDisplay::new(&shapes, &placements, fulfillment_path.clone()));
+                    println!(
+                        "{}",
+                        helpers::SolutionDisplay::new(
+                            &shapes,
+                            &placements,
+                            fulfillment_path.clone()
+                        )
+                    );
                 }
 
                 let expected: Option<Vec<usize>> = $expected;

@@ -11,6 +11,8 @@ cheat = []
 progress = []
 jemalloc = ["tikv-jemallocator"]
 tikv-jemallocator = ["dep:tikv-jemallocator"]
+safeguard = []
+cached-conflicts = []
 
 [dependencies]
 anyhow = "1.0.100"

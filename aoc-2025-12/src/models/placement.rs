@@ -123,7 +123,9 @@ impl<'r, const S: usize> Placement<'r, S> {
     /// Check if the placement fills the container at (x, y)
     pub fn is_filled_at(&self, x: usize, y: usize) -> bool {
         let width = self.requirement.container.width;
-        x < width && y < self.requirement.container.height && self.state.get(y * width + x).unwrap_or(false)
+        x < width
+            && y < self.requirement.container.height
+            && self.state.get(y * width + x).unwrap_or(false)
     }
 
     /// Check if the shape instance is set in the placement
