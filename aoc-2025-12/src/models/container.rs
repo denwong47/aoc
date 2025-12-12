@@ -47,6 +47,18 @@ impl<const S: usize> ShapeCounts<S> {
         }
         Some(self.0.iter().take(shape_index).sum::<usize>() + shape_count)
     }
+
+    pub fn increment(&mut self, shape_index: usize) {
+        if let Some(count) = self.0.get_mut(shape_index) {
+            *count += 1;
+        }
+    }
+
+    pub fn decrement(&mut self, shape_index: usize) {
+        if let Some(count) = self.0.get_mut(shape_index) {
+            *count = count.checked_sub(1).expect("Shape count underflowed");
+        }
+    }
 }
 
 impl<const S: usize> std::ops::Index<usize> for ShapeCounts<S> {

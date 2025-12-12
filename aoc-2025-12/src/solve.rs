@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::models::{self, PlacementMask, StateStorage, helpers};
+use crate::models::{self, PlacementMask, ShapeCounts, StateStorage, helpers};
 
 #[cfg(feature = "cached-conflicts")]
 use kdam::tqdm;
@@ -42,6 +42,13 @@ struct StepStateStore<'r, const S: usize> {
     /// A mask to track which placements are currently active (not deactivated).
     active_mask: PlacementMask,
 
+    /// The available shape counts remaining to be placed.
+    available_shape_counts: ShapeCounts<S>,
+
+    /// The remaining shape counts needed to fulfill the requirement.
+    required_shape_counts: ShapeCounts<S>,
+
+    #[cfg(feature = "safeguard")]
     /// A static mask with `1`s at the instance portion to quickly check for solution state.
     ///
     /// A [`StateStorage`] has [`Container::size`] number of bits representing the
@@ -50,7 +57,6 @@ struct StepStateStore<'r, const S: usize> {
     ///
     /// This mask has `1`s at the latter portion, allowing quick verification of whether
     /// all instances have been placed.
-    #[cfg(feature = "safeguard")]
     instance_state_mask: StateStorage,
 
     /// Pre-computed cache of conflicts between placements.
@@ -67,6 +73,13 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
 
         let current_path = Vec::with_capacity(requirement.total_shape_count());
 
+        let available_shape_counts = placements
+            .iter()
+            .fold(ShapeCounts::new([0usize; S]), |mut counts, placement| {
+                counts.increment(placement.shape_index);
+                counts
+            });
+
         let placements_len = placements.len();
         let mut instance = Self {
             requirement,
@@ -76,6 +89,8 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
             deactivated_indices: Vec::with_capacity(placements_len.pow(2)),
             undo_log: Vec::with_capacity(placements_len),
             active_mask: models::build_new_placement_mask(placements_len),
+            available_shape_counts,
+            required_shape_counts: requirement.shape_counts,
             #[cfg(feature = "safeguard")]
             instance_state_mask: requirement.build_instance_state_mask(),
             #[cfg(feature = "cached-conflicts")]
@@ -113,6 +128,17 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
             !is_conflict(&self.current_state, placement.state())
         }
     }
+    
+    /// Check if there are sufficient available shapes to fulfill the requirement.
+    /// 
+    /// If any shape type has fewer available shapes than required, return `false`;
+    /// otherwise, return `true`.
+    pub fn has_sufficient_shapes(&self) -> bool {
+        self.available_shape_counts
+            .iter()
+            .zip(self.required_shape_counts.iter())
+            .all(|(available, required)| available >= required)
+    }
 
     /// Pre-calulate conflicts between placements for faster lookup.
     ///
@@ -144,7 +170,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
     ///
     /// The ``newly_deactivated`` vector contains the indices of placements
     ///
-    fn deactivate_placements(&mut self, newly_deactivated: Vec<usize>) {
+    fn deactivate_placements(&mut self, newly_deactivated: Vec<usize>, placements: &[models::Placement<S>]) {
         #[cfg(feature = "trace")]
         let newly_deactivated_count = newly_deactivated.len();
 
@@ -154,6 +180,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
             // TODO check if already deactivated?
             self.active_mask.set(idx, false);
             self.deactivated_indices.push(idx);
+            self.available_shape_counts.decrement(placements[idx].shape_index);
         });
 
         #[cfg(feature = "trace")]
@@ -165,7 +192,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
 
     /// Undo the last step of placement elimination, restoring the active mask
     /// and eliminated indices to their previous states.
-    fn undo_one_step_of_placement_deactivation(&mut self) {
+    fn undo_one_step_of_placement_deactivation(&mut self, placements: &[models::Placement<S>]) {
         #[cfg(feature = "trace")]
         let len_before_removal = self.deactivated_indices.len();
 
@@ -178,6 +205,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
 
                 // Reactivate the placement in the active mask
                 self.active_mask.set(now_active_idx, true);
+                self.available_shape_counts.increment(placements[now_active_idx].shape_index);
             }
         }
         #[cfg(feature = "trace")]
@@ -217,9 +245,11 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
         // Add the placement to the current state
         self.current_state |= placement.state();
         self.current_path.push(placement_id);
+        self.required_shape_counts.decrement(placement.shape_index);
+        // Don't decrement available_shape_counts here; done in deactivate_placements
 
         let newly_eliminated = self.find_incompatible_placements(placements);
-        self.deactivate_placements(newly_eliminated);
+        self.deactivate_placements(newly_eliminated, placements);
 
         // Update the max path, and ensure there is one more entry for the next depth level
         if self.max_path.len() <= self.current_path.len() + 1
@@ -293,7 +323,8 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
 
             // Remove the placement from the current state
             self.current_state ^= placement.state();
-            self.undo_one_step_of_placement_deactivation();
+            self.undo_one_step_of_placement_deactivation(placements);
+            self.required_shape_counts.increment(placement.shape_index);
 
             #[cfg(feature = "trace")]
             eprintln!(
@@ -323,6 +354,8 @@ impl<'r, const S: usize> std::fmt::Display for StepStateStore<'r, S> {
         writeln!(f, "Current \x1b[1mstate storage\x1b[0m:",)?;
         writeln!(f, "Current path: \x1b[36m{:?}\x1b[0m", self.current_path)?;
         writeln!(f, "Max path   : \x1b[31m{:?}\x1b[0m", self.max_path)?;
+        writeln!(f, "Available shapes: \x1b[32m{:?}\x1b[0m", self.available_shape_counts)?;
+        writeln!(f, "Required shapes : \x1b[33m{:?}\x1b[0m", self.required_shape_counts)?;
         helpers::display_state_storage(&self.current_state, self.requirement, f)
     }
 }
@@ -382,11 +415,6 @@ pub fn find_one_fulfillment<const S: usize>(
             // since algorithmically we can only reach this depth if we have a solution.
             count if count == total_shape_count && step_state.is_solution() => {
                 #[cfg(feature = "trace")]
-                eprintln!(
-                    "\x1b[32mFound solution with path: {:?}\x1b[0m",
-                    step_state.current_path
-                );
-
                 println!("{}", step_state);
 
                 #[cfg(feature = "progress")]
@@ -412,6 +440,24 @@ pub fn find_one_fulfillment<const S: usize>(
                 );
             }
             count if count < total_shape_count => {
+                // Check if we have sufficient shapes remaining to fulfill the requirement.
+                if !step_state.has_sufficient_shapes() {
+                    #[cfg(feature = "trace")]
+                    eprintln!(
+                        "\x1b[33mInsufficient shapes remaining to fulfill requirement, backtracking...\x1b[0m"
+                    );
+
+                    if step_state.backtrack(placements).is_none() {
+                        #[cfg(feature = "trace")]
+                        eprintln!(
+                            "\x1b[33mNo more root placements to try\x1b[0m, search exhausted"
+                        );
+
+                        break;
+                    }
+                    continue;
+                }
+
                 // Try to advance the path by finding the next compatible placement.
                 // We do not need to try any placements before the last one in the path;
                 // Since the results are additive, our paths are always in ascending order of placement IDs.
