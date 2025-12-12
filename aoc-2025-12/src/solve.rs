@@ -48,6 +48,9 @@ struct StepStateStore<'r, const S: usize> {
     /// The remaining shape counts needed to fulfill the requirement.
     required_shape_counts: ShapeCounts<S>,
 
+    /// A set of previously seen states to avoid redundant exploration.
+    seen: fxhash::FxHashSet<Vec<usize>>,
+
     #[cfg(feature = "safeguard")]
     /// A static mask with `1`s at the instance portion to quickly check for solution state.
     ///
@@ -68,22 +71,20 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
     /// Create a new [`StepStateStore`]` for the given requirement and placements length.
     fn new(requirement: &'r models::Requirement<S>, placements: &[models::Placement<S>]) -> Self {
         const FIRST_INDEX: usize = 0;
-        let mut to_visit = Vec::with_capacity(requirement.total_shape_count());
-        to_visit.push((0..placements.len()).into_iter().collect());
-
+        
         let current_path = Vec::with_capacity(requirement.total_shape_count());
-
+        
         let available_shape_counts = placements
-            .iter()
-            .fold(ShapeCounts::new([0usize; S]), |mut counts, placement| {
-                counts.increment(placement.shape_index);
-                counts
-            });
+        .iter()
+        .fold(ShapeCounts::new([0usize; S]), |mut counts, placement| {
+            counts.increment(placement.shape_index);
+            counts
+        });
 
         let placements_len = placements.len();
         let mut instance = Self {
             requirement,
-            to_visit,
+            to_visit: Vec::with_capacity(requirement.total_shape_count()),
             current_path,
             current_state: requirement.build_new_state_storage(),
             deactivated_indices: Vec::with_capacity(placements_len.pow(2)),
@@ -91,11 +92,15 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
             active_mask: models::build_new_placement_mask(placements_len),
             available_shape_counts,
             required_shape_counts: requirement.shape_counts,
+            seen: fxhash::FxHashSet::default(),
             #[cfg(feature = "safeguard")]
             instance_state_mask: requirement.build_instance_state_mask(),
             #[cfg(feature = "cached-conflicts")]
             conflicts_cache: Self::precalculate_conflicts(placements),
         };
+        let mut to_visit_first = (FIRST_INDEX+1..placements_len).collect_vec();
+        instance.sort_placements_ids_by_shape_demand(&mut to_visit_first, placements);
+        instance.to_visit.push(to_visit_first);
 
         instance.insert_placement_if_compatible(FIRST_INDEX, placements);
 
@@ -151,20 +156,18 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
         // those placements. This allows us to get to `has_sufficient_shapes` failures
         // faster.
         let shape_availability = (0..S).into_iter().fold(
-            [0_u16; S],
+            [0_usize; S],
             |mut acc, shape_index| {
-                acc[shape_index] = (self
-                    .available_shape_counts[shape_index] as f32
-                    / self
-                        .required_shape_counts[shape_index]
-                        .max(1) as f32
-                    * 100.) as u16;
+                let required = self
+                        .required_shape_counts[shape_index];
+                acc[shape_index] = self
+                    .available_shape_counts[shape_index]/ required.max(1);
                 acc
             }
         );
 
         placement_ids.sort_by_key(|&idx| {
-            shape_availability[placements[idx].shape_index]
+            shape_availability[placements[idx].shape_index] + idx % 7 // Tie-breaker
         })
     }
 
@@ -276,11 +279,24 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
         self.required_shape_counts.decrement(placement.shape_index);
         // Don't decrement available_shape_counts here; done in deactivate_placements
 
+        // Mark the current path as seen to avoid redundant exploration
+        let mut path_clone = self.current_path.clone();
+        path_clone.sort_unstable();
+        self.seen.insert(path_clone);
+
         let newly_eliminated = self.find_incompatible_placements(placements);
         self.deactivate_placements(newly_eliminated, placements);
 
         // Cache all the available placements for the next depth level
-        let mut to_visit = self.iter_available_placements(self.current_path.len()).collect_vec();
+        let mut to_visit = self.iter_available_placements(self.current_path.len()).filter(
+            |&idx| {
+                let mut potential_path = self.current_path.clone();
+                potential_path.push(idx);
+                potential_path.sort_unstable();
+                
+                !self.seen.contains(&potential_path)
+            },
+        ).collect_vec();
         self.sort_placements_ids_by_shape_demand(&mut to_visit, placements);
         self.to_visit.push(to_visit);
 
@@ -346,6 +362,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
             self.undo_one_step_of_placement_deactivation(placements);
             self.required_shape_counts.increment(placement.shape_index);
             self.to_visit.pop();
+
 
             #[cfg(feature = "trace")]
             eprintln!(
@@ -565,7 +582,7 @@ mod test_solve {
         };
     }
 
-    create_test!(test_example_1(0) = Some(vec![63, 40]));
-    create_test!(test_example_2(1) = Some(vec![1079, 236, 827, 676, 1024, 350]));
+    create_test!(test_example_1(0) = Some(vec![62, 41]));
+    create_test!(test_example_2(1) = Some(vec![839, 230, 664, 916, 356, 1067]));
     create_test!(test_example_3(2) = None);
 }
