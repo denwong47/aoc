@@ -75,7 +75,7 @@ impl ShapeBuilder {
             .take(3)
             .flat_map(|line| {
                 let trimmed_line = line.trim();
-                (0..=2).into_iter().map(|col_idx| -> anyhow::Result<bool> {
+                (0..=2).map(|col_idx| -> anyhow::Result<bool> {
                     match trimmed_line.chars().nth(col_idx) {
                         Some('#') => Ok(true),
                         Some('.') => Ok(false),

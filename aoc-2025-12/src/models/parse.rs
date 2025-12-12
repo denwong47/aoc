@@ -16,7 +16,7 @@ pub fn parse_input<const S: usize>(
 
     let requirements = lines
         .skip_while(|line| line.trim().is_empty())
-        .map(|line| Requirement::from_input(line))
+        .map(Requirement::from_input)
         .collect::<anyhow::Result<Vec<_>>>()?;
 
     Ok((shapes, requirements))

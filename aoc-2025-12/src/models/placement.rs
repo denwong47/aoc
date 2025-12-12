@@ -70,10 +70,8 @@ impl<'s, 'r, const S: usize> Iterator for PlacementBuilder<'s, 'r, S> {
             self.y,
             self.shape_count,
         )
-        .expect(&format!(
-            "Failed to create placement for shape #{} at ({}, {}) with count {}",
-            self.shape.index, self.x, self.y, self.shape_count
-        ));
+        .unwrap_or_else(|_| panic!("Failed to create placement for shape #{} at ({}, {}) with count {}",
+            self.shape.index, self.x, self.y, self.shape_count));
 
         self.shape_count += 1;
         instance
@@ -191,7 +189,7 @@ pub fn build_placements_for_requirement<'r, const S: usize>(
     shapes: &[models::Shape],
     requirement: &'r models::Requirement<S>,
 ) -> Vec<Placement<'r, S>> {
-    let total_placements_count = progress::calculate_total_placements(&shapes, &requirement);
+    let total_placements_count = progress::calculate_total_placements(shapes, requirement);
     tqdm!(
         (0..shapes.len())
             .cartesian_product(
@@ -200,7 +198,7 @@ pub fn build_placements_for_requirement<'r, const S: usize>(
                     .iter_all_positions(shapes[0].width(), shapes[0].height())
             )
             .flat_map(|(shape_index, (x, y))| {
-                models::PlacementBuilder::new(&shapes[shape_index], &requirement, x, y)
+                models::PlacementBuilder::new(&shapes[shape_index], requirement, x, y)
             }),
         total = total_placements_count
     )

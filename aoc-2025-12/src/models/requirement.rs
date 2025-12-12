@@ -36,7 +36,6 @@ impl<const S: usize> Requirement<S> {
         let container = Container::new(width, height);
 
         let shape_counts: [usize; S] = shapes_part
-            .trim()
             .split_whitespace()
             .map(|s| {
                 s.trim()
