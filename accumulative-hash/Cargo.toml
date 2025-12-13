@@ -1,0 +1,10 @@
+[package]
+name = "accumulative-hash"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+atomic = []
+
+[dependencies]
+num-traits = "0.2.19"
