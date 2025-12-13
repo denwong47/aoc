@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["compare_area_with_visibility","find_best_match"]};

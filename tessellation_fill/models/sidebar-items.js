@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CellState","Direction","FillState"],"struct":["Grid","Slice"],"type":["Coords","Dimension","Rectangle","Unit"]};

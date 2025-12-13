@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["instructions_from_string","main"],"mod":["input"],"struct":["Wheel"]};

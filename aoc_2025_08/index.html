@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 8: Playground"><title>aoc_2025_08 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="aoc_2025_08" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate aoc_2025_08</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../aoc_2025_08/index.html">aoc_<wbr>2025_<wbr>08</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#day-8-playground" title="Day 8: Playground">Day 8: Playground</a><ul><li><a href="#part-two" title="Part Two">Part Two</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>aoc_<wbr>2025_<wbr>08</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/aoc_2025_08/main.rs.html#1-263">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="day-8-playground"><a class="doc-anchor" href="#day-8-playground">§</a>Day 8: <strong>Playground</strong></h2>
+<p>Equipped with a new understanding of teleporter maintenance, you confidently step
+onto the repaired teleporter pad.</p>
+<p>You rematerialize on an unfamiliar teleporter pad and find yourself in a vast
+underground space which contains a giant playground!</p>
+<p>Across the playground, a group of Elves are working on setting up an ambitious
+Christmas decoration project. Through careful rigging, they have suspended a large
+number of small electrical junction boxes.</p>
+<p>Their plan is to connect the junction boxes with long strings of lights. Most of the
+junction boxes don’t provide electricity; however, when two junction boxes are
+connected by a string of lights, electricity can pass between those two junction
+boxes.</p>
+<p>The Elves are trying to figure out which junction boxes to connect so that
+electricity can reach every junction box. They even have a list of all of the
+junction boxes’ positions in 3D space (your puzzle input).</p>
+<p>For example:</p>
+<div class="example-wrap"><pre class="language-text"><code>162,817,812
+57,618,57
+906,360,560
+592,479,940
+352,342,300
+466,668,158
+542,29,236
+431,825,988
+739,650,466
+52,470,668
+216,146,977
+819,987,18
+117,168,530
+805,96,715
+346,949,466
+970,615,88
+941,993,340
+862,61,35
+984,92,344
+425,690,689</code></pre></div>
+<p>This list describes the position of 20 junction boxes, one per line. Each position
+is given as X,Y,Z coordinates. So, the first junction box in the list is at X=162,
+Y=817, Z=812.</p>
+<p>To save on string lights, the Elves would like to focus on connecting pairs of
+junction boxes that are as close together as possible according to
+<a href="https://en.wikipedia.org/wiki/Euclidean_distance">straight-line distance</a>. In this example, the two junction boxes which are closest
+together are 162,817,812 and 425,690,689.</p>
+<p>By connecting these two junction boxes together, because electricity can flow
+between them, they become part of the same circuit. After connecting them, there is
+a single circuit which contains two junction boxes, and the remaining 18 junction
+boxes remain in their own individual circuits.</p>
+<p>Now, the two junction boxes which are closest together but aren’t already directly
+connected are 162,817,812 and 431,825,988. After connecting them, since 162,817,812
+is already connected to another junction box, there is now a single circuit which
+contains three junction boxes and an additional 17 circuits which contain one
+junction box each.</p>
+<p>The next two junction boxes to connect are 906,360,560 and 805,96,715. After
+connecting them, there is a circuit containing 3 junction boxes, a circuit
+containing 2 junction boxes, and 15 circuits which contain one junction box each.</p>
+<p>The next two junction boxes are 431,825,988 and 425,690,689. Because these two
+junction boxes were already in the same circuit, nothing happens!</p>
+<p>This process continues for a while, and the Elves are concerned that they don’t have
+enough extension cables for all these circuits. They would like to know how big the
+circuits will be.</p>
+<p>After making the ten shortest connections, there are 11 circuits: one circuit which
+contains 5 junction boxes, one circuit which contains 4 junction boxes, two circuits
+which contain 2 junction boxes each, and seven circuits which each contain a single
+junction box. Multiplying together the sizes of the three largest circuits (5, 4,
+and one of the circuits of size 2) produces 40.</p>
+<p>Your list contains many junction boxes; connect together the 1000 pairs of junction
+boxes which are closest together. Afterward, what do you get if you multiply
+together the sizes of the three largest circuits?</p>
+<p>Your puzzle answer was 97384.</p>
+<h3 id="part-two"><a class="doc-anchor" href="#part-two">§</a>Part Two</h3>
+<p>The Elves were right; they definitely don’t have enough extension cables. You’ll
+need to keep connecting junction boxes together until they’re all in one large
+circuit.</p>
+<p>Continuing the above example, the first connection which causes all of the junction
+boxes to form a single circuit is between the junction boxes at 216,146,977 and
+117,168,530. The Elves need to know how far those junction boxes are from the wall
+so they can pick the right extension cable; multiplying the X coordinates of those
+two junction boxes (216 and 117) produces 25272.</p>
+<p>Continue connecting the closest unconnected pairs of junction boxes together until
+they’re all in the same circuit. What do you get if you multiply together the X
+coordinates of the last two junction boxes you need to connect?</p>
+<p>Your puzzle answer was 9003685096.</p>
+<p>Both parts of this puzzle are complete! They provide two gold stars: **</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="input/index.html" title="mod aoc_2025_08::input">input</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="models/index.html" title="mod aoc_2025_08::models">models</a></dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.generate_circuit_map.html" title="fn aoc_2025_08::generate_circuit_map">generate_<wbr>circuit_<wbr>map</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.main.html" title="fn aoc_2025_08::main">main</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl></section></div></main></body></html>

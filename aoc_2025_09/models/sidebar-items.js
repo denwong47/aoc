@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Corner"],"struct":["IndexedCoords","Rectangle","VisibilityBounds"],"type":["Coord","Coords"]};

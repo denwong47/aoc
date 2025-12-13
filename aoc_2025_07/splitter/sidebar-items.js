@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["SOURCE_INTENSITY"],"enum":["InputType"],"fn":["calculate_beam_intensity_map","scan_input"]};

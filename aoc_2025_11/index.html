@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 11: Reactor"><title>aoc_2025_11 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="aoc_2025_11" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate aoc_2025_11</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../aoc_2025_11/index.html">aoc_<wbr>2025_<wbr>11</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#day-11-reactor" title="Day 11: Reactor">Day 11: Reactor</a><ul><li><a href="#part-two" title="Part Two">Part Two</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#statics" title="Statics">Statics</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>aoc_<wbr>2025_<wbr>11</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/aoc_2025_11/main.rs.html#1-349">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="day-11-reactor"><a class="doc-anchor" href="#day-11-reactor">§</a>Day 11: <strong>Reactor</strong></h2>
+<p>You hear some loud beeping coming from a hatch in the floor of the factory, so you decide to check it out. Inside, you find several large electrical conduits and a ladder.</p>
+<p>Climbing down the ladder, you discover the source of the beeping: a large, toroidal reactor which powers the factory above. Some Elves here are hurriedly running between the reactor and a nearby server rack, apparently trying to fix something.</p>
+<p>One of the Elves notices you and rushes over. “It’s a good thing you’re here! We just installed a new server rack, but we aren’t having any luck getting the reactor to communicate with it!” You glance around the room and see a tangle of cables and devices running from the server rack to the reactor. She rushes off, returning a moment later with a list of the devices and their outputs (your puzzle input).</p>
+<p>For example:</p>
+<div class="example-wrap"><pre class="language-text"><code>aaa: you hhh
+you: bbb ccc
+bbb: ddd eee
+ccc: ddd eee fff
+ddd: ggg
+eee: out
+fff: out
+ggg: out
+hhh: ccc fff iii
+iii: out</code></pre></div>
+<p>Each line gives the name of a device followed by a list of the devices to which its outputs are attached. So, bbb: ddd eee means that device bbb has two outputs, one leading to device ddd and the other leading to device eee.</p>
+<p>The Elves are pretty sure that the issue isn’t due to any specific device, but rather that the issue is triggered by data following some specific path through the devices. Data only ever flows from a device through its outputs; it can’t flow backwards.</p>
+<p>After dividing up the work, the Elves would like you to focus on the devices starting with the one next to you (an Elf hastily attaches a label which just says you) and ending with the main output to the reactor (which is the device with the label out).</p>
+<p>To help the Elves figure out which path is causing the issue, they need you to find every path from you to out.</p>
+<p>In this example, these are all of the paths from you to out:</p>
+<div class="example-wrap"><pre class="language-text"><code> 
+    Data could take the connection from you to bbb, then from bbb to ddd, then from ddd to ggg, then from ggg to out.
+    Data could take the connection to bbb, then to eee, then to out.
+    Data could go to ccc, then ddd, then ggg, then out.
+    Data could go to ccc, then eee, then out.
+    Data could go to ccc, then fff, then out.
+ </code></pre></div>
+<p>In total, there are 5 different paths leading from you to out.</p>
+<p>How many different paths lead from you to out?</p>
+<p>Your puzzle answer was 796.</p>
+<h3 id="part-two"><a class="doc-anchor" href="#part-two">§</a>Part Two</h3>
+<p>Thanks in part to your analysis, the Elves have figured out a little bit about the issue. They now know that the problematic data path passes through both dac (a digital-to-analog converter) and fft (a device which performs a fast Fourier transform).</p>
+<p>They’re still not sure which specific path is the problem, and so they now need you to find every path from svr (the server rack) to out. However, the paths you find must all also visit both dac and fft (in any order).</p>
+<p>For example:</p>
+<div class="example-wrap"><pre class="language-text"><code>svr: aaa bbb
+aaa: fft
+fft: ccc
+bbb: tty
+tty: ccc
+ccc: ddd eee
+ddd: hub
+hub: fff
+eee: dac
+dac: fff
+fff: ggg hhh
+ggg: out
+hhh: out</code></pre></div>
+<p>This new list of devices contains many paths from svr to out:</p>
+<div class="example-wrap"><pre class="language-text"><code>svr,aaa,fft,ccc,ddd,hub,fff,ggg,out
+svr,aaa,fft,ccc,ddd,hub,fff,hhh,out
+svr,aaa,fft,ccc,eee,dac,fff,ggg,out
+svr,aaa,fft,ccc,eee,dac,fff,hhh,out
+svr,bbb,tty,ccc,ddd,hub,fff,ggg,out
+svr,bbb,tty,ccc,ddd,hub,fff,hhh,out
+svr,bbb,tty,ccc,eee,dac,fff,ggg,out
+svr,bbb,tty,ccc,eee,dac,fff,hhh,out</code></pre></div>
+<p>However, only 2 paths from svr to out visit both dac and fft.</p>
+<p>Find all of the paths that lead from svr to out. How many of those paths visit both dac and fft?</p>
+<p>Your puzzle answer was 294053029111296.</p>
+<p>Both parts of this puzzle are complete! They provide two gold stars: **</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="input/index.html" title="mod aoc_2025_11::input">input</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="models/index.html" title="mod aoc_2025_11::models">models</a></dt><dt><a class="mod" href="parse/index.html" title="mod aoc_2025_11::parse">parse</a></dt></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.DAC.html" title="constant aoc_2025_11::DAC">DAC</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="constant" href="constant.DESTINATION.html" title="constant aoc_2025_11::DESTINATION">DESTINATION</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="constant" href="constant.FFT.html" title="constant aoc_2025_11::FFT">FFT</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="constant" href="constant.SERVER_RACK.html" title="constant aoc_2025_11::SERVER_RACK">SERVER_<wbr>RACK</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="constant" href="constant.START.html" title="constant aoc_2025_11::START">START</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl><h2 id="statics" class="section-header">Statics<a href="#statics" class="anchor">§</a></h2><dl class="item-table"><dt><a class="static" href="static.GLOBAL.html" title="static aoc_2025_11::GLOBAL">GLOBAL</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.build_devices.html" title="fn aoc_2025_11::build_devices">build_<wbr>devices</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.count_number_of_solutions.html" title="fn aoc_2025_11::count_number_of_solutions">count_<wbr>number_<wbr>of_<wbr>solutions</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.main.html" title="fn aoc_2025_11::main">main</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.part_2_solutions_count.html" title="fn aoc_2025_11::part_2_solutions_count">part_<wbr>2_<wbr>solutions_<wbr>count</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["invert_device_map"],"struct":["Device"],"trait":["DeviceIdToStr"],"type":["DeviceId","DeviceMap","Distance"]};

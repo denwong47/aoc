@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Visibility Module"><title>aoc_2025_09::visibility - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="aoc_2025_09" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../../static.files/storage-e2aeef58.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module visibility</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../aoc_2025_09/index.html">aoc_<wbr>2025_<wbr>09</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module visibility</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#visibility-module" title="Visibility Module">Visibility Module</a></li></ul><h3><a href="#enums">Module Items</a></h3><ul class="block"><li><a href="#enums" title="Enums">Enums</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate aoc_<wbr>2025_<wbr>09</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">aoc_2025_09</a></div><h1>Module <span>visibility</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/aoc_2025_09/visibility.rs.html#1-415">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h3 id="visibility-module"><a class="doc-anchor" href="#visibility-module">§</a>Visibility Module</h3>
+<p>This module provides functionality to determine visibility bounds
+from a given point within a polygon defined by a set of indexed coordinates.
+It includes functions to check if a line blocks visibility,
+find visibility bounds, and build visibility bounds for a list of indexed coordinates.</p>
+<p>## Warning</p>
+<p>This module does not work:</p>
+<div class="example-wrap"><pre class="language-text"><code>..............
+.......#XXX#..
+.......XXXXX..
+..AXXXXBXXXC..
+..XXXXXXXXXX..
+..#XXXXXX#XX..
+.........XXX..
+.........#X#..
+..............</code></pre></div>
+<p>A is at (2,3), B is at (7,3), C is at (11,3).</p>
+<p>Since visibility lines has no concept of “inside” or “outside” the polygon,
+it consider B to be blocking A’s visibility to the right, while this is only
+true if the polygon is flipped:</p>
+<div class="example-wrap"><pre class="language-text"><code>XXXXXXXXXXXXXX
+XXXXXXX#XXX#XX
+XXXXXXXX...XXX
+XXAXXXXB...CXX
+XXX........XXX
+XX#XXXXXX#.XXX
+XXXXXXXXXX.XXX
+XXXXXXXXX#X#XX
+XXXXXXXXXXXXXX</code></pre></div>
+<p>In other words, the visibility from A to C is dependant on whether the polygon is
+considered to be the “X” area or the “.” area; but this module has no concept of that.</p>
+<p>Some of this problem was mitigated by using two visibility bounds (absolute and corner):
+if we hit a corner instead of a straight edge, we treat that as a weaker form of blocking;
+and behave the opposite way when combining the two bounds:</p>
+<ul>
+<li>for absolute bounds, we take the closest blocking edge we find; but</li>
+<li>for corner bounds, we take the furthest blocking edge we find.</li>
+</ul>
+<p>This however is not sufficient to solve the problem in all cases:</p>
+<div class="example-wrap"><pre class="language-text"><code>..............
+.AXXXXXXXXXX#.
+.BXXXXXX#XXXX.
+........XXXXX.
+.CXXXXXX#XXXX.
+.DXXXXXXXXXX#.
+..............</code></pre></div>
+<p>In the above example, A only encounters corners when looking downwards. Using our logic
+above, it sees B, C and D, and prefers D as the bottom visibility bound. However,
+in reality, there is a gap after B that C and D should not be visible.</p>
+<p>Without knowing which side of the polygon is “inside” or “outside”, this cannot be
+correctly resolved.</p>
+<p>In actual fact, our input happens to not trigger this limitation, so the answer
+is still correct, but this is <strong>absolute garbage code</strong> that only works by coincidence.</p>
+</div></details><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.Direction.html" title="enum aoc_2025_09::visibility::Direction">Direction</a></dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.blocks_visibility.html" title="fn aoc_2025_09::visibility::blocks_visibility">blocks_<wbr>visibility</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dd>Determines if a line defined by two <a href="../models/struct.IndexedCoords.html" title="struct aoc_2025_09::models::IndexedCoords"><code>IndexedCoords</code></a> blocks visibility from a given point.</dd><dt><a class="fn" href="fn.build_visibility_bounds_for_indexed_coords.html" title="fn aoc_2025_09::visibility::build_visibility_bounds_for_indexed_coords">build_<wbr>visibility_<wbr>bounds_<wbr>for_<wbr>indexed_<wbr>coords</a></dt><dd>Builds visibility bounds for a list of <a href="../models/struct.IndexedCoords.html" title="struct aoc_2025_09::models::IndexedCoords"><code>IndexedCoords</code></a> based on a polygon.</dd><dt><a class="fn" href="fn.find_visibility_bounds.html" title="fn aoc_2025_09::visibility::find_visibility_bounds">find_<wbr>visibility_<wbr>bounds</a></dt><dd>Finds the visibility bounds from a given coordinate within
+a polygon defined by the <a href="../models/struct.IndexedCoords.html" title="struct aoc_2025_09::models::IndexedCoords"><code>IndexedCoords</code></a>.</dd></dl></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["default_intensity_map"],"type":["BeamIntensity","BeamIntensityMap","BeamPosition","SplitterHitCount"]};

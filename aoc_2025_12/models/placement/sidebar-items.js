@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["build_placements_for_requirement","set_shape_in_storage"],"struct":["Placement","PlacementBuilder"]};

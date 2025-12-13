@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["aoc_2025_05",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"aoc_2025_05/range/struct.StringRange.html\" title=\"struct aoc_2025_05::range::StringRange\">StringRange</a>"]]],["aoc_2025_08",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"aoc_2025_08/models/struct.Relation.html\" title=\"struct aoc_2025_08::models::Relation\">Relation</a>"]]],["aoc_2025_10",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"enum\" href=\"aoc_2025_10/models/enum.Difference.html\" title=\"enum aoc_2025_10::models::Difference\">Difference</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.91.1/std/primitive.i16.html\">i16</a>&gt;"],["impl&lt;U&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"aoc_2025_10/models/struct.PartialOrdered.html\" title=\"struct aoc_2025_10::models::PartialOrdered\">PartialOrdered</a>&lt;U&gt;"]]],["simple_graph",[["impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.91.1/core/cmp/trait.Ord.html\" title=\"trait core::cmp::Ord\">Ord</a> for <a class=\"struct\" href=\"simple_graph/wrapper/struct.UnorderedItem.html\" title=\"struct simple_graph::wrapper::UnorderedItem\">UnorderedItem</a>&lt;T&gt;"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[290,284,689,322]}

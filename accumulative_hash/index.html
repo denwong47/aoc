@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Accumulative Hash / Additive Commutative Hash"><title>accumulative_hash - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="accumulative_hash" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate accumulative_hash</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../accumulative_hash/index.html">accumulative_<wbr>hash</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#accumulative-hash--additive-commutative-hash" title="Accumulative Hash / Additive Commutative Hash">Accumulative Hash / Additive Commutative Hash</a><ul><li><a href="#features" title="Features">Features</a></li><li><a href="#example-dfs-path-tracking" title="Example: DFS Path Tracking">Example: DFS Path Tracking</a></li><li><a href="#available-hash-types" title="Available Hash Types">Available Hash Types</a></li></ul></li></ul><h3><a href="#structs">Crate Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>accumulative_<wbr>hash</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/accumulative_hash/lib.rs.html#1-100">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="accumulative-hash--additive-commutative-hash"><a class="doc-anchor" href="#accumulative-hash--additive-commutative-hash">§</a>Accumulative Hash / Additive Commutative Hash</h2>
+<p><code>accumulative_hash</code> provides an efficient, order-independent hashing mechanism ideal for
+tracking the state of additive data structures, such as paths in a Depth-First Search (DFS)
+where the order of nodes visited does not change the identity of the path’s <em>set</em> of nodes.</p>
+<p>This library implements <strong>Commutative Hashing</strong> using modular arithmetic (<code>wrapping_add</code>/<code>wrapping_sub</code>),
+guaranteeing that the order of insertion does not affect the final hash state.</p>
+<div class="example-wrap"><pre class="language-text"><code>H({A, B, C}) = H({A, C, B}) = H({C, B, A})</code></pre></div>
+<p>This is achieved by pre-mixing each input value (<code>u32</code>, <code>u64</code>, etc.) into a high-quality, large
+pseudorandom number, and then combining these numbers via modular addition.</p>
+<h3 id="features"><a class="doc-anchor" href="#features">§</a>Features</h3>
+<ul>
+<li><strong>Order-Independent Hashing (Commutative):</strong> No need to sort input elements (<a href="https://doc.rust-lang.org/1.91.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec"><code>Vec&lt;u32&gt;</code></a>) before hashing, saving <code>O(N \log N)</code> per check.</li>
+<li><strong>Incremental Updates:</strong> <code>O(1)</code> addition (<code>add</code>) and removal (<code>remove</code>) of elements.``</li>
+<li><strong>Composition Property:</strong> Hashes are associative, meaning two accumulated hashes can be summed to get the hash of the combined set of elements.</li>
+<li><strong>Thread Safety:</strong> The <a href="struct.AtomicAccumulativeHash.html" title="struct accumulative_hash::AtomicAccumulativeHash"><code>AtomicAccumulativeHash</code></a> struct uses <a href="https://doc.rust-lang.org/1.91.1/core/sync/atomic/struct.AtomicU64.html" title="struct core::sync::atomic::AtomicU64"><code>std::sync::atomic::AtomicU64</code></a>, etc., with Compare-And-Swap (CAS) loops for lock-free, thread-safe updates to the hash state.
+<ul>
+<li><strong>NOTE</strong>: This requires the <code>atomic</code> feature flag to be enabled.</li>
+</ul>
+</li>
+<li><strong>Collision Resistance:</strong> By default, uses large integer types (recommended <a href="https://doc.rust-lang.org/1.91.1/std/primitive.u64.html" title="primitive u64"><code>u64</code></a> and <a href="https://doc.rust-lang.org/1.91.1/std/primitive.u128.html" title="primitive u128"><code>u128</code></a>) and carefully chosen mixing constants derived from mathematical principles (like the Golden Ratio constant <code>0x9E3779B97F4A7C15F39CC0605CEDC834</code> for <code>u128</code>) to ensure a statistically low collision rate.</li>
+</ul>
+<h3 id="example-dfs-path-tracking"><a class="doc-anchor" href="#example-dfs-path-tracking">§</a>Example: DFS Path Tracking</h3>
+<p>This library solves the problem of tracking visited, order-independent paths in a DFS without expensive memory allocations or sorting.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>accumulative_hash::AccumulativeHash;
+<span class="kw">use </span>std::collections::HashSet; <span class="comment">// other hash set implementations can be used as well
+ 
+// Assuming your step IDs are u32
+</span><span class="kw">type </span>PathHash = u64;
+ 
+<span class="kw">fn </span>check_and_mark_path(
+    visited: <span class="kw-2">&amp;mut </span>HashSet&lt;PathHash&gt;,
+    current_path_hash: PathHash,
+) -&gt; bool {
+    <span class="comment">// True if we've visited this state before, regardless of the order of steps.
+    </span>!visited.insert(current_path_hash)
+}
+ 
+<span class="kw">fn </span>depth_first_search(steps: <span class="kw-2">&amp;</span>[u32]) {
+    <span class="kw">let </span><span class="kw-2">mut </span>visited_states = HashSet::&lt;PathHash&gt;::default();
+    <span class="kw">let </span><span class="kw-2">mut </span>current_hash_state = AccumulativeHash::&lt;PathHash&gt;::new();
+ 
+    <span class="kw">for </span><span class="kw-2">&amp;</span>step_id <span class="kw">in </span>steps {
+        <span class="comment">// 1. Add the step: O(1)
+        </span>current_hash_state.add(step_id);
+ 
+        <span class="kw">let </span>path_hash = <span class="kw-2">*</span>current_hash_state.state();
+ 
+        <span class="comment">// 2. Check for visit: O(1) average
+        </span><span class="kw">if </span>check_and_mark_path(<span class="kw-2">&amp;mut </span>visited_states, path_hash) {
+            <span class="macro">println!</span>(<span class="string">"Path leading to {:X} was already visited!"</span>, path_hash);
+            <span class="comment">// Backtrack logic would follow here...
+        </span>}
+         
+        <span class="comment">// ... continue DFS ...
+ 
+        // 3. Backtrack (Remove step): O(1)
+        // If we were using a recursive DFS, this would happen on return:
+        // current_hash_state.remove(step_id);
+    </span>}
+}</code></pre></div><h3 id="available-hash-types"><a class="doc-anchor" href="#available-hash-types">§</a>Available Hash Types</h3>
+<p>The core trait for underlying types is <a href="trait.IsAccumulativeHashType.html" title="trait accumulative_hash::IsAccumulativeHashType">IsAccumulativeHashType</a>, implemented for:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/1.91.1/std/primitive.u8.html" title="primitive u8">u8</a>, <a href="https://doc.rust-lang.org/1.91.1/std/primitive.u16.html" title="primitive u16">u16</a>, <a href="https://doc.rust-lang.org/1.91.1/std/primitive.u32.html" title="primitive u32">u32</a> (Not recommended for production due to high collision risk)</li>
+<li><a href="https://doc.rust-lang.org/1.91.1/std/primitive.u64.html" title="primitive u64">u64</a> (Good balance of speed and collision resistance)</li>
+<li><a href="https://doc.rust-lang.org/1.91.1/std/primitive.u128.html" title="primitive u128">u128</a> (Highest collision resistance)</li>
+<li><a href="https://doc.rust-lang.org/1.91.1/std/primitive.usize.html" title="primitive usize">usize</a> (Based on the target platform’s pointer width)</li>
+</ul>
+<p>For thread-safe operations, use the <a href="struct.AtomicAccumulativeHash.html" title="struct accumulative_hash::AtomicAccumulativeHash"><code>AtomicAccumulativeHash</code></a> struct with the <code>atomic</code> feature enabled.
+The underlying atomic types supported are:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/sync/atomic/struct.AtomicU8.html" title="struct core::sync::atomic::AtomicU8">AtomicU8</a> (Not recommended for production due to high collision risk)</li>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/sync/atomic/struct.AtomicU16.html" title="struct core::sync::atomic::AtomicU16">AtomicU16</a> (Not recommended for production due to high collision risk)</li>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/sync/atomic/struct.AtomicU32.html" title="struct core::sync::atomic::AtomicU32">AtomicU32</a> (Not recommended for production due to high collision risk)</li>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/sync/atomic/struct.AtomicU64.html" title="struct core::sync::atomic::AtomicU64">AtomicU64</a> (Recommended for thread-safe operations with good collision resistance)</li>
+<li><a href="https://doc.rust-lang.org/1.91.1/core/sync/atomic/struct.AtomicUsize.html" title="struct core::sync::atomic::AtomicUsize">AtomicUsize</a> (Based on the target platform’s pointer width)</li>
+</ul>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AccumulativeHash.html" title="struct accumulative_hash::AccumulativeHash">Accumulative<wbr>Hash</a></dt><dd>A struct that remembers the state of a hash as data is added and/or removed from it.</dd><dt><a class="struct" href="struct.AtomicAccumulativeHash.html" title="struct accumulative_hash::AtomicAccumulativeHash">Atomic<wbr>Accumulative<wbr>Hash</a></dt><dd>A struct that remembers the state of a hash as data is added and/or removed from it.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.IsAccumulativeHashType.html" title="trait accumulative_hash::IsAccumulativeHashType">IsAccumulative<wbr>Hash<wbr>Type</a></dt><dd>Trait defining the properties required for an accumulative hash type.</dd><dt><a class="trait" href="trait.IsAtomicAccumulativeHashType.html" title="trait accumulative_hash::IsAtomicAccumulativeHashType">IsAtomic<wbr>Accumulative<wbr>Hash<wbr>Type</a></dt><dd>Trait defining the properties required for an atomic accumulative hash type.</dd></dl></section></div></main></body></html>

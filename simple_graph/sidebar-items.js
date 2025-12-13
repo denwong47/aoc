@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["SimpleGraphError"],"fn":["dfs_count","dijkstra"],"mod":["traits","wrapper"],"struct":["Dfs","NodeInProgress"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["pad_string"],"struct":["StringRange"]};

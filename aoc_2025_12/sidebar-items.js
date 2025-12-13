@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["INPUT","SHAPE_COUNT"],"fn":["main"],"mod":["input","models","progress","solve"],"static":["GLOBAL"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EMPTY_DISPLAY","FILLED_DISPLAY","SHAPE_HEIGHT","SHAPE_WIDTH"],"fn":["build_new_placement_mask"],"type":["InnerShape","PlacementMask","StateStorage"]};

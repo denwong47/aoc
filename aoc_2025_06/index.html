@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 6: Trash Compactor"><title>aoc_2025_06 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="aoc_2025_06" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate aoc_2025_06</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../aoc_2025_06/index.html">aoc_<wbr>2025_<wbr>06</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#day-6-trash-compactor" title="Day 6: Trash Compactor">Day 6: Trash Compactor</a><ul><li><a href="#part-two" title="Part Two">Part Two</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>aoc_<wbr>2025_<wbr>06</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/aoc_2025_06/main.rs.html#1-118">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="day-6-trash-compactor"><a class="doc-anchor" href="#day-6-trash-compactor">§</a>Day 6: <strong>Trash Compactor</strong></h2>
+<p>After helping the Elves in the kitchen, you were taking a break and helping them re-enact a movie scene when you over-enthusiastically jumped into the garbage chute!</p>
+<p>A brief fall later, you find yourself in a garbage smasher. Unfortunately, the door’s been magnetically sealed.</p>
+<p>As you try to find a way out, you are approached by a family of cephalopods! They’re pretty sure they can get the door open, but it will take some time. While you wait, they’re curious if you can help the youngest cephalopod with her math homework.</p>
+<p>Cephalopod math doesn’t look that different from normal math. The math worksheet (your puzzle input) consists of a list of problems; each problem has a group of numbers that need to be either added (+) or multiplied (*) together.</p>
+<p>However, the problems are arranged a little strangely; they seem to be presented next to each other in a very long horizontal list. For example:</p>
+<div class="example-wrap"><pre class="language-text"><code>123 328  51 64
+ 45 64  387 23
+  6 98  215 314
+*   +   *   +  </code></pre></div>
+<p>Each problem’s numbers are arranged vertically; at the bottom of the problem is the symbol for the operation that needs to be performed. Problems are separated by a full column of only spaces. The left/right alignment of numbers within each problem can be ignored.</p>
+<p>So, this worksheet contains four problems:</p>
+<div class="example-wrap"><pre class="language-text"><code>
+    123 * 45 * 6 = 33210
+    328 + 64 + 98 = 490
+    51 * 387 * 215 = 4243455
+    64 + 23 + 314 = 401
+</code></pre></div>
+<p>To check their work, cephalopod students are given the grand total of adding together all of the answers to the individual problems. In this worksheet, the grand total is 33210 + 490 + 4243455 + 401 = 4277556.</p>
+<p>Of course, the actual worksheet is much wider. You’ll need to make sure to unroll it completely so that you can read the problems clearly.</p>
+<p>Solve the problems on the math worksheet. What is the grand total found by adding together all of the answers to the individual problems?</p>
+<p>Your puzzle answer was 3968933219902.</p>
+<h3 id="part-two"><a class="doc-anchor" href="#part-two">§</a>Part Two</h3>
+<p>The big cephalopods come back to check on how things are going. When they see that your grand total doesn’t match the one expected by the worksheet, they realize they forgot to explain how to read cephalopod math.</p>
+<p>Cephalopod math is written right-to-left in columns. Each number is given in its own column, with the most significant digit at the top and the least significant digit at the bottom. (Problems are still separated with a column consisting only of spaces, and the symbol at the bottom of the problem is still the operator to use.)</p>
+<p>Here’s the example worksheet again:</p>
+<div class="example-wrap"><pre class="language-text"><code>123 328  51 64
+ 45 64  387 23
+  6 98  215 314
+*   +   *   +  </code></pre></div>
+<p>Reading the problems right-to-left one column at a time, the problems are now quite different:</p>
+<div class="example-wrap"><pre class="language-text"><code>
+    The rightmost problem is 4 + 431 + 623 = 1058
+    The second problem from the right is 175 * 581 * 32 = 3253600
+    The third problem from the right is 8 + 248 + 369 = 625
+    Finally, the leftmost problem is 356 * 24 * 1 = 8544
+</code></pre></div>
+<p>Now, the grand total is 1058 + 3253600 + 625 + 8544 = 3263827.</p>
+<p>Solve the problems on the math worksheet again. What is the grand total found by adding together all of the answers to the individual problems?</p>
+<p>Your puzzle answer was 6019576291014.</p>
+<p>Both parts of this puzzle are complete! They provide two gold stars: **</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="buffer/index.html" title="mod aoc_2025_06::buffer">buffer</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="input/index.html" title="mod aoc_2025_06::input">input</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="operator/index.html" title="mod aoc_2025_06::operator">operator</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="orchestrator/index.html" title="mod aoc_2025_06::orchestrator">orchestrator</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="traits/index.html" title="mod aoc_2025_06::traits">traits</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.main.html" title="fn aoc_2025_06::main">main</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl></section></div></main></body></html>

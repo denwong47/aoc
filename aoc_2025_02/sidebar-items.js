@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["PRIMES"],"fn":["generate_mask","main","split_input_into_iterables"],"mod":["input"],"static":["GLOBAL"],"struct":["RepeatedPatternInteger","RepeatedPatternIntegerCounter"]};

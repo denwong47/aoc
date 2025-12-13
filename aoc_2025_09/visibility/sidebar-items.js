@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Direction"],"fn":["blocks_visibility","build_visibility_bounds_for_indexed_coords","find_visibility_bounds"]};

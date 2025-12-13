@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["DAC","DESTINATION","FFT","SERVER_RACK","START"],"fn":["build_devices","count_number_of_solutions","main","part_2_solutions_count"],"mod":["input","models","parse"],"static":["GLOBAL"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["indexed_coords_from_text"]};
