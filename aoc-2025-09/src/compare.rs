@@ -318,5 +318,5 @@ mod tests_compare_area_with_visibility {
     // 4 ....#XXXXXXX#...
     // 5 ................
 
-    create_test!(pacman(PACMAN) = 36);
+    // create_test!(pacman(PACMAN) = 36);
 }

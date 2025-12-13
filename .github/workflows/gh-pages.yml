@@ -1,0 +1,36 @@
+# This Workflow will fail as long as the repo is not public;
+name: Build and Publish Github Pages
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  # the 1st condition
+  push:
+    branches: [main]
+
+jobs:
+  deploy_gh_pages:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build Cargo Docs
+      run: |
+        cargo doc --no-deps --all-features
+        mkdir -p docs/build/html
+        cp -r target/doc/* docs/build/html/
+    - name: Adds `index.html`
+      run: |
+        echo '<meta http-equiv="refresh" content="0; url=./accumulative_hash/index.html" />' > docs/build/html/index.html
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-docs
+        path: docs/build/html/
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v4
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/build/html
