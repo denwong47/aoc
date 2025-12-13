@@ -61,6 +61,18 @@ impl<T: IsAtomicAccumulativeHashType> AtomicAccumulativeHash<T> {
         }
     }
 
+    /// Hash a value and combine it with the current state, returning the new hash state,
+    /// but not modifying the internal state.
+    /// 
+    /// This is useful for checking what the hash would be if a value were to be added,
+    /// without actually modifying the accumulative hash.
+    pub fn and_hash<S: Into<T::UnderlyingType>>(&self, value: S, order: Ordering) -> T::UnderlyingType {
+        let value_as_underlying = value.into();
+        let hashed = helpers::hash::<T::UnderlyingType, _>(value_as_underlying);
+        self.load(order).wrapping_add(&hashed)
+    }
+
+
     /// Add a value to the accumulative hash.
     ///
     /// This does not guarantee that the value was never added before; it will simply

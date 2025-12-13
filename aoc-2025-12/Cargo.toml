@@ -15,6 +15,7 @@ safeguard = []
 cached-conflicts = []
 
 [dependencies]
+accumulative-hash = { version = "0.1.0", path = "../accumulative-hash" }
 anyhow = "1.0.100"
 bitvec = "1.0.1"
 bitvec_simd = "0.20.5"

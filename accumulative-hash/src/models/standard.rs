@@ -26,6 +26,16 @@ impl<T: IsAccumulativeHashType> AccumulativeHash<T> {
         Self { state }
     }
 
+    /// Hash a value and combine it with the current state, returning the new hash state,
+    /// but not modifying the internal state.
+    /// 
+    /// This is useful for checking what the hash would be if a value were to be added,
+    /// without actually modifying the accumulative hash.
+    pub fn and_hash<S: Into<T>>(&self, value: S) -> T {
+        let hashed = helpers::hash::<T, _>(value.into());
+        self.state.wrapping_add(&hashed)
+    }
+
     /// Add a value to the accumulative hash.
     ///
     /// This does not guarantee that the value was never added before;

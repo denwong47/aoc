@@ -48,8 +48,11 @@ struct StepStateStore<'r, const S: usize> {
     /// The remaining shape counts needed to fulfill the requirement.
     required_shape_counts: ShapeCounts<S>,
 
+    /// An accumulative hasher to track seen states.
+    hasher: accumulative_hash::AccumulativeHash<u64>,
+
     /// A set of previously seen states to avoid redundant exploration.
-    seen: fxhash::FxHashSet<Vec<usize>>,
+    seen: fxhash::FxHashSet<u64>,
 
     #[cfg(feature = "safeguard")]
     /// A static mask with `1`s at the instance portion to quickly check for solution state.
@@ -92,6 +95,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
             active_mask: models::build_new_placement_mask(placements_len),
             available_shape_counts,
             required_shape_counts: requirement.shape_counts,
+            hasher: accumulative_hash::AccumulativeHash::new(),
             seen: fxhash::FxHashSet::default(),
             #[cfg(feature = "safeguard")]
             instance_state_mask: requirement.build_instance_state_mask(),
@@ -102,7 +106,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
         instance.sort_placements_ids_by_shape_demand(&mut to_visit_first, placements);
         instance.to_visit.push(to_visit_first);
 
-        instance.insert_placement_if_compatible(FIRST_INDEX, placements);
+        instance.advance_to(FIRST_INDEX, placements);
 
         instance
     }
@@ -261,7 +265,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
     ///
     /// Returns ``true`` if the placement was successfully applied,
     /// ``false`` otherwise.
-    pub fn insert_placement_if_compatible(
+    pub fn advance_to(
         &mut self,
         placement_id: usize,
         placements: &[models::Placement<S>],
@@ -280,9 +284,8 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
         // Don't decrement available_shape_counts here; done in deactivate_placements
 
         // Mark the current path as seen to avoid redundant exploration
-        let mut path_clone = self.current_path.clone();
-        path_clone.sort_unstable();
-        self.seen.insert(path_clone);
+        let new_hash = self.hasher.add(placement_id as u64);
+        self.seen.insert(*new_hash);
 
         let newly_eliminated = self.find_incompatible_placements(placements);
         self.deactivate_placements(newly_eliminated, placements);
@@ -290,12 +293,16 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
         // Cache all the available placements for the next depth level
         let mut to_visit = self.iter_available_placements(self.current_path.len()).filter(
             |&idx| {
-                let mut potential_path = self.current_path.clone();
-                potential_path.push(idx);
-                potential_path.sort_unstable();
-                
-                !self.seen.contains(&potential_path)
-            },
+                let visited = self.seen.contains(&self.hasher.and_hash(idx as u64));
+                #[cfg(feature = "trace")]
+                if visited {
+                    eprintln!(
+                        "Skipping placement #{} as it has been \x1b[33mvisited\x1b[0m before",
+                        idx
+                    );
+                }
+                !visited
+            }
         ).collect_vec();
         self.sort_placements_ids_by_shape_demand(&mut to_visit, placements);
         self.to_visit.push(to_visit);
@@ -362,7 +369,7 @@ impl<'r, const S: usize> StepStateStore<'r, S> {
             self.undo_one_step_of_placement_deactivation(placements);
             self.required_shape_counts.increment(placement.shape_index);
             self.to_visit.pop();
-
+            self.hasher.remove(last_placement_id as u64);
 
             #[cfg(feature = "trace")]
             eprintln!(
@@ -494,7 +501,7 @@ pub fn find_one_fulfillment<const S: usize>(
                     .and_then(|to_visit_at_depth| to_visit_at_depth.pop());
 
                 if let Some(next_placement_id) = next_placement_id_opt {
-                    if step_state.insert_placement_if_compatible(next_placement_id, placements) {
+                    if step_state.advance_to(next_placement_id, placements) {
                         #[cfg(feature = "trace")]
                         eprintln!(
                             "Advanced path to \x1b[36m{:?}\x1b[0m",
@@ -583,6 +590,6 @@ mod test_solve {
     }
 
     create_test!(test_example_1(0) = Some(vec![62, 41]));
-    // create_test!(test_example_2(1) = Some(vec![839, 230, 664, 916, 356, 1067]));
+    create_test!(test_example_2(1) = Some(vec![839, 230, 664, 916, 356, 1067]));
     // create_test!(test_example_3(2) = None);
 }
