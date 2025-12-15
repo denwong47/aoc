@@ -1,1 +1,81 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `aoc_2025_01` crate."><title>aoc_2025_01 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="aoc_2025_01" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate aoc_2025_01</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../aoc_2025_01/index.html">aoc_<wbr>2025_<wbr>01</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>aoc_<wbr>2025_<wbr>01</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/aoc_2025_01/main.rs.html#1-274">Source</a> </span></div><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="input/index.html" title="mod aoc_2025_01::input">input</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Wheel.html" title="struct aoc_2025_01::Wheel">Wheel</a></dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.instructions_from_string.html" title="fn aoc_2025_01::instructions_from_string">instructions_<wbr>from_<wbr>string</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.main.html" title="fn aoc_2025_01::main">main</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl></section></div></main></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 1: Secret Entrance"><title>aoc_2025_01 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="aoc_2025_01" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate aoc_2025_01</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../aoc_2025_01/index.html">aoc_<wbr>2025_<wbr>01</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#day-1-secret-entrance" title="Day 1: Secret Entrance">Day 1: Secret Entrance</a></li><li><a href="#part-two" title="Part Two">Part Two</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>aoc_<wbr>2025_<wbr>01</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/aoc_2025_01/main.rs.html#1-389">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h3 id="day-1-secret-entrance"><a class="doc-anchor" href="#day-1-secret-entrance">§</a>Day 1: Secret Entrance</h3>
+<p>The Elves have good news and bad news.</p>
+<p>The good news is that they’ve discovered project management! This has given them the
+tools they need to prevent their usual Christmas emergency. For example, they now
+know that the North Pole decorations need to be finished soon so that other critical
+tasks can start on time.</p>
+<p>The bad news is that they’ve realized they have a different emergency: according to
+their resource planning, none of them have any time left to decorate the North Pole!</p>
+<p>To save Christmas, the Elves need you to finish decorating the North Pole by
+December 12th.</p>
+<p>Collect stars by solving puzzles. Two puzzles will be made available on each day;
+the second puzzle is unlocked when you complete the first. Each puzzle grants one
+star. Good luck!</p>
+<p>You arrive at the secret entrance to the North Pole base ready to start decorating.
+Unfortunately, the password seems to have been changed, so you can’t get in. A
+document taped to the wall helpfully explains:</p>
+<p>“Due to new security protocols, the password is locked in the safe below. Please see
+the attached document for the new combination.”</p>
+<p>The safe has a dial with only an arrow on it; around the dial are the numbers 0
+through 99 in order. As you turn the dial, it makes a small click noise as it
+reaches each number.</p>
+<p>The attached document (your puzzle input) contains a sequence of rotations, one per
+line, which tell you how to open the safe. A rotation starts with an L or R which
+indicates whether the rotation should be to the left (toward lower numbers) or to
+the right (toward higher numbers). Then, the rotation has a distance value which
+indicates how many clicks the dial should be rotated in that direction.</p>
+<p>So, if the dial were pointing at 11, a rotation of R8 would cause the dial to point
+at 19. After that, a rotation of L19 would cause it to point at 0.</p>
+<p>Because the dial is a circle, turning the dial left from 0 one click makes it point
+at 99. Similarly, turning the dial right from 99 one click makes it point at 0.</p>
+<p>So, if the dial were pointing at 5, a rotation of L10 would cause it to point at 95.
+After that, a rotation of R5 could cause it to point at 0.</p>
+<p>The dial starts by pointing at 50.</p>
+<p>You could follow the instructions, but your recent required official North Pole
+secret entrance security training seminar taught you that the safe is actually a
+decoy. The actual password is the number of times the dial is left pointing at 0
+after any rotation in the sequence.</p>
+<p>For example, suppose the attached document contained the following rotations:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>L68 L30 R48 L5 R60 L55 L1 L99 R14 L82</code></pre></div>
+<p>Following these rotations would cause the dial to move as follows:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>The dial starts by pointing at <span class="number">50.
+</span>The dial is rotated L68 to point at <span class="number">82.
+</span>The dial is rotated L30 to point at <span class="number">52.
+</span>The dial is rotated R48 to point at <span class="number">0.
+</span>The dial is rotated L5 to point at <span class="number">95.
+</span>The dial is rotated R60 to point at <span class="number">55.
+</span>The dial is rotated L55 to point at <span class="number">0.
+</span>The dial is rotated L1 to point at <span class="number">99.
+</span>The dial is rotated L99 to point at <span class="number">0.
+</span>The dial is rotated R14 to point at <span class="number">14.
+</span>The dial is rotated L82 to point at <span class="number">32.</span></code></pre></div>
+<p>Because the dial points at 0 a total of three times during this process, the password in this example is 3.</p>
+<p>Analyze the rotations in your attached document. What’s the actual password to open the door?</p>
+<p>Your puzzle answer was 1145.</p>
+<h3 id="part-two"><a class="doc-anchor" href="#part-two">§</a>Part Two</h3>
+<p>You’re sure that’s the right password, but the door won’t open. You knock, but nobody answers. You build a snowman while you think.</p>
+<p>As you’re rolling the snowballs for your snowman, you find another security document that must have fallen into the snow:</p>
+<p>“Due to newer security protocols, please use password method 0x434C49434B until further notice.”</p>
+<p>You remember from the training seminar that “method 0x434C49434B” means you’re actually supposed to count the number of times any click causes the dial to point at 0, regardless of whether it happens during a rotation or at the end of one.</p>
+<p>Following the same rotations as in the above example, the dial points at zero a few extra times during its rotations:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>The dial starts by pointing at <span class="number">50.
+</span>The dial is rotated L68 to point at <span class="number">82</span>; during this rotation, it points at <span class="number">0 </span>once.
+The dial is rotated L30 to point at <span class="number">52.
+</span>The dial is rotated R48 to point at <span class="number">0.
+</span>The dial is rotated L5 to point at <span class="number">95.
+</span>The dial is rotated R60 to point at <span class="number">55</span>; during this rotation, it points at <span class="number">0 </span>once.
+The dial is rotated L55 to point at <span class="number">0.
+</span>The dial is rotated L1 to point at <span class="number">99.
+</span>The dial is rotated L99 to point at <span class="number">0.
+</span>The dial is rotated R14 to point at <span class="number">14.
+</span>The dial is rotated L82 to point at <span class="number">32</span>; during this rotation, it points at <span class="number">0 </span>once.</code></pre></div>
+<p>In this example, the dial points at 0 three times at the end of a rotation, plus three more times during a rotation. So, in this example, the new password would be 6.</p>
+<p>Be careful: if the dial were pointing at 50, a single rotation like R1000 would cause the dial to point at 0 ten times before returning back to 50!</p>
+<p>Using password method 0x434C49434B, what is the password to open the door?</p>
+<p>Your puzzle answer was 6561.</p>
+<p>Both parts of this puzzle are complete! They provide two gold stars: **</p>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="input/index.html" title="mod aoc_2025_01::input">input</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Wheel.html" title="struct aoc_2025_01::Wheel">Wheel</a></dt><dd>A wheel (or dial) that can be rotated left or right, tracking how many times it
+passes through and ends at position 0.</dd></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.instructions_from_string.html" title="fn aoc_2025_01::instructions_from_string">instructions_<wbr>from_<wbr>string</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="fn" href="fn.main.html" title="fn aoc_2025_01::main">main</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl></section></div></main></body></html>
