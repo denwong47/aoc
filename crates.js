@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["accumulative_hash","aoc_2025_01","aoc_2025_02","aoc_2025_03","aoc_2025_05","aoc_2025_06","aoc_2025_07","aoc_2025_08","aoc_2025_09","aoc_2025_10","aoc_2025_11","aoc_2025_12","simple_graph","tessellation_fill"];
-//{"start":21,"fragment_lengths":[19,14,14,14,14,14,14,14,14,14,14,14,15,20]}
+window.ALL_CRATES = ["accumulative_hash","aoc_2025_01","aoc_2025_02","aoc_2025_03","aoc_2025_05","aoc_2025_06","aoc_2025_07","aoc_2025_08","aoc_2025_09","aoc_2025_10","aoc_2025_11","aoc_2025_12","simple_graph"];
+//{"start":21,"fragment_lengths":[19,14,14,14,14,14,14,14,14,14,14,14,15]}
