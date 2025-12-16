@@ -2,121 +2,83 @@
 
 ![Day 12](./screenshot.png)
 
-You're almost out of time, but there can't be much left to decorate. Although there are no stairs, elevators, escalators, tunnels, chutes, teleporters, firepoles, or conduits here that would take you deeper into the North Pole base, there is a ventilation duct. You jump in.
+This is another one of those problems that makes Z3 and OR-Tools very appealing, but we also learn nothing by just using them as black boxes. So let's try to solve it with a more hands-on approach.
 
-After bumping around for a few minutes, you emerge into a large, well-lit cavern full of Christmas trees!
+We will use [Algorithm X](https://en.wikipedia.org/wiki/Knuth's_Algorithm_X) with [SIMD BitVec](https://docs.rs/bitvec_simd/latest/bitvec_simd/struct.BitVecSimd.html#method.from_slice).
 
-There are a few Elves here frantically decorating before the deadline. They think they'll be able to finish most of the work, but the one thing they're worried about is the presents for all the young Elves that live here at the North Pole. It's an ancient tradition to put the presents under the trees, but the Elves are worried they won't fit.
-
-The presents come in a few standard but very weird shapes. The shapes and the regions into which they need to fit are all measured in standard units. To be aesthetically pleasing, the presents need to be placed into the regions in a way that follows a standardized two-dimensional unit grid; you also can't stack presents.
-
-As always, the Elves have a summary of the situation (your puzzle input) for you. First, it contains a list of the presents' shapes. Second, it contains the size of the region under each tree and a list of the number of presents of each shape that need to fit into that region. For example:
+Here's a screenshot of the search in progress:
 
 ```text
-0:
-###
-##.
-##.
-
-1:
-###
-##.
-.##
-
-2:
-.##
-###
-##.
-
-3:
-##.
-###
-##.
-
-4:
-###
-#..
-###
-
-5:
-###
-.#.
-###
-
-4x4: 0 0 0 0 2 0
-12x5: 1 0 1 0 2 2
-12x5: 1 0 1 0 3 2
+Current path: [0, 353, 970, 1039]
+Available shapes: ShapeCounts([0, 0, 0, 0, 4, 0])
+Required shapes : ShapeCounts([0, 0, 0, 0, 2, 0])
+  0: ███░░███░█░█
+  1: ░██░░░█░░███
+  2: ░███████░█░█
+  3: ░░░███░░░░░░
+  4: ░░░░██░░░░░░
+Shape instance:
+     01
+  0: █
+  1: 
+  2: █
+  3: 
+  4: ░░
+  5: ██
 ```
 
-The first section lists the standard present shapes. For convenience, each shape starts with its index and a colon; then, the shape is displayed visually, where # is part of the shape and . is not.
+Each of the `░` or `█` a state. The upper part is the grid, where each cell in the grid is a state, and the lower part is the number of instances per shape required by the input. Our objective is to ensure the latter is filled, while the former does not have any overlapping states.
 
-The second section lists the regions under the trees. Each line starts with the width and length of the region; 12x5 means the region is 12 units wide and 5 units long. The rest of the line describes the presents that need to fit into that region by listing the quantity of each shape of present; 1 0 1 0 3 2 means you need to fit one present with shape index 0, no presents with shape index 1, one present with shape index 2, no presents with shape index 3, three presents with shape index 4, and two presents with shape index 5.
+For this purpose, we map out all the possibilities of
+- rotating and flipping each shape
+- placing each shape at each possible position on the grid
+- the chosen shape taking up one of the required shape instances
 
-Presents can be rotated and flipped as necessary to make them fit in the available space, but they have to always be placed perfectly on the grid. Shapes can't overlap (that is, the # part from two different presents can't go in the same place on the grid), but they can fit together (that is, the . part in a present's shape's diagram does not block another present from occupying that space on the grid).
+This gives us a huge list of "Placement"s, each of which covers a set of states on the grid, and uses up one instance of a shape. Since the condition to merge them no longer depends on the actual grid layout, we can represent each placement as a bit vector, where each bit represents whether a state is covered or not.
 
-The Elves need to know how many of the regions can fit the presents listed. In the above example, there are six unique present shapes and three regions that need checking.
+With this representation, we can use Algorithm X to search for a combination of placements that covers all the required shapes without overlapping on any grid states. By using SIMD BitVecs, we can efficiently perform the necessary bitwise operations to check for overlaps and coverage during the search process.
 
-The first region is 4x4:
+## Heuristics
+
+To speed up the search, we can apply some heuristics:
+
+- **Early Pruning**: If at any point the number of remaining placements for a shape is **less than the number required of that shape**, we can prune that branch of the search.
+- **Most Constrained First**: Always try to place the shape that has the **fewest remaining placements** first. This reduces the branching factor early in the search.
+- **Compaction**: (unimplemented) Since a shape does not occupy the whole 3x3 max shape, there would be "holes" in the space it could have filled. Instead of just parking the next shape along the next 3x3 block, we can sort the placements by the ones that can fill in the maximum number of holes from the previous step first.
+
+## Impossibility and input rigging
+
+The algorithm is not fast, but it is well enough to provide a solution if one exists.
+
+However if no solution exists, it will take a very long time to exhaust all possibilities. In such cases, we can try to prove impossibility by other means.
+
+The obvious first thing to do is to sum up all the required shapes' areas, and see if it exceeds the grid area. If it does, we can immediately conclude that it's impossible... which funny enough, solves the provided input??!
+
+It probably is the case that no solution being such a hard problem to solve, that Eric's own algorithm could not have crunched it for the unique inputs for each user.
+
+## Unit tests
+
+The test cases provided in the example are included in the unit tests, and it is able to find the solution of Test #2 in about 1s:
 
 ```text
-....
-....
-....
-....
+Iterations per second: 1278808
+Search completed in 1.047824542s
+Solution found:
+To fill the container of size 12x5 with the 6 specified shapes:
+
+  0: ░░▒▒▒░░░▒░▒░
+  1: ░░▒░▒░░░▒▒▒░
+  2: ▓░▒▒▒▒▓▓▒▒▒▒
+  3: ▓▓▓▒▒▒▓▓▓▒░▒
+  4: ▓▓▓▒░▒░▓▓▒▒▒
+Shape instance:
+     01
+  0: ▓
+  1: 
+  2: ▓
+  3: 
+  4: ▒▒
+  5: ▒▒
 ```
 
-In it, you need to determine whether you could fit two presents that have shape index 4:
-
-```text
-###
-#..
-###
-```
-
-After some experimentation, it turns out that you can fit both presents in this region. Here is one way to do it, using A to represent one present and B to represent the other:
-
-```text
-AAA.
-ABAB
-ABAB
-.BBB
-```
-
-The second region, 12x5: 1 0 1 0 2 2, is 12 units wide and 5 units long. In that region, you need to try to fit one present with shape index 0, one present with shape index 2, two presents with shape index 4, and two presents with shape index 5.
-
-It turns out that these presents can all fit in this region. Here is one way to do it, again using different capital letters to represent all the required presents:
-
-```text
-....AAAFFE.E
-.BBBAAFFFEEE
-DDDBAAFFCECE
-DBBB....CCC.
-DDD.....C.C.
-```
-
-The third region, 12x5: 1 0 1 0 3 2, is the same size as the previous region; the only difference is that this region needs to fit one additional present with shape index 4. Unfortunately, no matter how hard you try, there is no way to fit all of the presents into this region.
-
-So, in this example, 2 regions can fit all of their listed presents.
-
-Consider the regions beneath each tree and the presents the Elves would like to fit into each of them. How many of the regions can fit all of the presents listed?
-
-Your puzzle answer was 599.
-
-
-## Part Two
-
-The Elves thank you profusely for the help and start rearranging the oddly-shaped presents. As you look up, you notice that a lot more Elves have arrived here at the Christmas tree farm.
-
-In fact, many of these new arrivals look familiar: they're the Elves you helped while decorating the North Pole base. Right on schedule, each group seems to have brought a star to put atop one of the Christmas trees!
-
-Before any of them can find a ladder, a particularly large Christmas tree suddenly flashes brightly when a large star magically appears above it! As your eyes readjust, you think you notice a portly man with a white beard disappear into the crowd.
-
-You go look for a ladder; only 23 stars to go.
-
-If you like, you can [Decorating the North Pole Again].
-
-.
-
-Both parts of this puzzle are complete! They provide two gold stars: **
-
-**You help the Elves decorate the Christmas trees with all 24 stars! Now, the Elves will have plenty of time to prepare for Christmas, and you get a well-deserved break.**
+Room for improvement remains, especially in the heuristics department.
