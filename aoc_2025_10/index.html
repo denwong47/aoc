@@ -1,7 +1,104 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Did a lot of thinking, have a working solution, but the solution requires 300+ button presses which is beyond what I can reasonably compute with any algorithm I know."><title>aoc_2025_10 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="aoc_2025_10" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate aoc_2025_10</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../aoc_2025_10/index.html">aoc_<wbr>2025_<wbr>10</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#statics" title="Statics">Statics</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>aoc_<wbr>2025_<wbr>10</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/aoc_2025_10/main.rs.html#1-54">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Did a lot of thinking, have a working solution, but the solution requires 300+ button presses which
-is beyond what I can reasonably compute with any algorithm I know.</p>
-<p>All the LLMs just say “use MILP” but don’t explain what it does or how it works.</p>
-<p>We type in the problem and press a button and it gives an answer.</p>
-<p>What fun. What joy. What achievement. What learning.</p>
-<p>Not.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 10 - Factory"><title>aoc_2025_10 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-e56847b5.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="aoc_2025_10" data-themes="" data-resource-suffix="" data-rustdoc-version="1.91.1 (ed61e7d7e 2025-11-07)" data-channel="1.91.1" data-search-js="search-e256b49e.js" data-stringdex-js="stringdex-c3e638e9.js" data-settings-js="settings-c38705f0.js" ><script src="../static.files/storage-e2aeef58.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-6dc2a7f3.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-263c88ec.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate aoc_2025_10</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../aoc_2025_10/index.html">aoc_<wbr>2025_<wbr>10</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#day-10---factory" title="Day 10 - Factory">Day 10 - Factory</a></li><li><a href="#part-two" title="Part Two">Part Two</a></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#statics" title="Statics">Statics</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>aoc_<wbr>2025_<wbr>10</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/aoc_2025_10/main.rs.html#1-198">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h3 id="day-10---factory"><a class="doc-anchor" href="#day-10---factory">§</a>Day 10 - Factory</h3>
+<p>Just across the hall, you find a large factory. Fortunately, the Elves here have
+plenty of time to decorate. Unfortunately, it’s because the factory machines are all
+offline, and none of the Elves can figure out the initialization procedure.</p>
+<p>The Elves do have the manual for the machines, but the section detailing the
+initialization procedure was eaten by a Shiba Inu. All that remains of the manual
+are some indicator light diagrams, button wiring schematics, and joltage
+requirements for each machine.</p>
+<p>For example:</p>
+<div class="example-wrap"><pre class="language-text"><code>[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}</code></pre></div>
+<p>The manual describes one machine per line. Each line contains a single indicator
+light diagram in [square brackets], one or more button wiring schematics in
+(parentheses), and joltage requirements in {curly braces}.</p>
+<p>To start a machine, its indicator lights must match those shown in the diagram,
+where . means off and # means on. The machine has the number of indicator lights
+shown, but its indicator lights are all initially off.</p>
+<p>So, an indicator light diagram like [.##.] means that the machine has four indicator
+lights which are initially off and that the goal is to simultaneously configure the
+first light to be off, the second light to be on, the third to be on, and the fourth
+to be off.</p>
+<p>You can toggle the state of indicator lights by pushing any of the listed buttons.
+Each button lists which indicator lights it toggles, where 0 means the first light,
+1 means the second light, and so on. When you push a button, each listed indicator
+light either turns on (if it was off) or turns off (if it was on). You have to push
+each button an integer number of times; there’s no such thing as “0.5 presses” (nor
+can you push a button a negative number of times).</p>
+<p>So, a button wiring schematic like (0,3,4) means that each time you push that
+button, the first, fourth, and fifth indicator lights would all toggle between on
+and off. If the indicator lights were [#…..], pushing the button would change them
+to be […##.] instead.</p>
+<p>Because none of the machines are running, the joltage requirements are irrelevant
+and can be safely ignored.</p>
+<p>You can push each button as many times as you like. However, to save on time, you
+will need to determine the fewest total presses required to correctly configure all
+indicator lights for all machines in your list.</p>
+<p>There are a few ways to correctly configure the first machine:</p>
+<div class="example-wrap"><pre class="language-text"><code>[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>* You could press the first three buttons once each, a total of <span class="number">3 </span>button presses.
+* You could press (<span class="number">1</span>,<span class="number">3</span>) once, (<span class="number">2</span>,<span class="number">3</span>) once, and (<span class="number">0</span>,<span class="number">1</span>) twice, a total of <span class="number">4 </span>button presses.
+* You could press all of the buttons except (<span class="number">1</span>,<span class="number">3</span>) once each, a total of <span class="number">5 </span>button presses.</code></pre></div>
+<p>However, the fewest button presses required is 2. One way to do this is by pressing
+the last two buttons ((0,2) and (0,1)) once each.</p>
+<p>The second machine can be configured with as few as 3 button presses:</p>
+<div class="example-wrap"><pre class="language-text"><code>[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}</code></pre></div>
+<p>One way to achieve this is by pressing the last three buttons ((0,4), (0,1,2), and
+(1,2,3,4)) once each.</p>
+<p>The third machine has a total of six indicator lights that need to be configured
+correctly:</p>
+<div class="example-wrap"><pre class="language-text"><code>[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}</code></pre></div>
+<p>The fewest presses required to correctly configure it is 2; one way to do this is by
+pressing buttons (0,3,4) and (0,1,2,4,5) once each.</p>
+<p>So, the fewest button presses required to correctly configure the indicator lights
+on all of the machines is 2 + 3 + 2 = 7.</p>
+<p>Analyze each machine’s indicator light diagram and button wiring schematics. What is
+the fewest button presses required to correctly configure the indicator lights on
+all of the machines?</p>
+<p>Your puzzle answer was 432.</p>
+<h3 id="part-two"><a class="doc-anchor" href="#part-two">§</a>Part Two</h3>
+<p>All of the machines are starting to come online! Now, it’s time to worry about the
+joltage requirements.</p>
+<p>Each machine needs to be configured to exactly the specified joltage levels to
+function properly. Below the buttons on each machine is a big lever that you can use
+to switch the buttons from configuring the indicator lights to increasing the
+joltage levels. (Ignore the indicator light diagrams.)</p>
+<p>The machines each have a set of numeric counters tracking its joltage levels, one
+counter per joltage requirement. The counters are all initially set to zero.</p>
+<p>So, joltage requirements like {3,5,4,7} mean that the machine has four counters
+which are initially 0 and that the goal is to simultaneously configure the first
+counter to be 3, the second counter to be 5, the third to be 4, and the fourth to be
+7.</p>
+<p>The button wiring schematics are still relevant: in this new joltage configuration
+mode, each button now indicates which counters it affects, where 0 means the first
+counter, 1 means the second counter, and so on. When you push a button, each listed
+counter is increased by 1.</p>
+<p>So, a button wiring schematic like (1,3) means that each time you push that button,
+the second and fourth counters would each increase by 1. If the current joltage
+levels were {0,1,2,3}, pushing the button would change them to be {0,2,2,4}.</p>
+<p>You can push each button as many times as you like. However, your finger is getting
+sore from all the button pushing, and so you will need to determine the fewest total
+presses required to correctly configure each machine’s joltage level counters to
+match the specified joltage requirements.</p>
+<p>Consider again the example from before:</p>
+<div class="example-wrap"><pre class="language-text"><code>[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
+[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}</code></pre></div>
+<p>Configuring the first machine’s counters requires a minimum of 10 button presses.
+One way to do this is by pressing (3) once, (1,3) three times, (2,3) three times,
+(0,2) once, and (0,1) twice.</p>
+<p>Configuring the second machine’s counters requires a minimum of 12 button presses.
+One way to do this is by pressing (0,2,3,4) twice, (2,3) five times, and (0,1,2)
+five times.</p>
+<p>Configuring the third machine’s counters requires a minimum of 11 button presses.
+One way to do this is by pressing (0,1,2,3,4) five times, (0,1,2,4,5) five times,
+and (1,2) once.</p>
+<p>So, the fewest button presses required to correctly configure the joltage level
+counters on all of the machines is 10 + 12 + 11 = 33.</p>
+<p>Analyze each machine’s joltage requirements and button wiring schematics. What is
+the fewest button presses required to correctly configure the joltage level counters
+on all of the machines?</p>
+<p>Your puzzle answer was 18011.</p>
+<p>Both parts of this puzzle are complete! They provide two gold stars: **</p>
 </div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="input/index.html" title="mod aoc_2025_10::input">input</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt><dt><a class="mod" href="models/index.html" title="mod aoc_2025_10::models">models</a></dt></dl><h2 id="statics" class="section-header">Statics<a href="#statics" class="anchor">§</a></h2><dl class="item-table"><dt><a class="static" href="static.GLOBAL.html" title="static aoc_2025_10::GLOBAL">GLOBAL</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.main.html" title="fn aoc_2025_10::main">main</a><span title="Restricted Visibility">&nbsp;🔒</span> </dt></dl></section></div></main></body></html>
