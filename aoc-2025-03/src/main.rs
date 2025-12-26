@@ -108,7 +108,15 @@ impl HighestSequentialCombination for VecDeque<u8> {
 }
 
 fn main() {
-    let sum: u64 = INPUT
+    let sum2: u64 = INPUT
+        .split_whitespace()
+        .map(|line| {
+            let mut vec_deque = build_vec_deque_from_string(line);
+            vec_deque.filter_to_highest_sequential_combination::<2>();
+            vec_deque.build_int()
+        })
+        .sum();
+    let sum12: u64 = INPUT
         .split_whitespace()
         .map(|line| {
             let mut vec_deque = build_vec_deque_from_string(line);
@@ -117,7 +125,8 @@ fn main() {
         })
         .sum();
 
-    println!("Sum of all highest sequential combinations: {}", sum);
+    println!("Part 1 Total Joltage: \x1b[32m{}\x1b[0m", sum2);
+    println!("Part 2 Total Joltage: \x1b[32m{}\x1b[0m", sum12);
 }
 
 #[cfg(test)]
