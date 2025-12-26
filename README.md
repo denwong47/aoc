@@ -25,7 +25,7 @@ My approach emphasizes:
 To run a specific day's solution, use the following command from the repository root:
 
 ```sh
-cargo run -p aoc-yyyy-dd
+cargo run --release -p aoc-yyyy-dd
 ```
 
 Replace `yyyy` and `dd` with the desired year and day, respectively.
@@ -33,7 +33,15 @@ Replace `yyyy` and `dd` with the desired year and day, respectively.
 Example for Day 5 of 2025:
 
 ```sh
-cargo run -p aoc-2025-05
+cargo run --release -p aoc-2025-05
+```
+
+For simplicity, the input is simply baked in as a `static &str` in each day's `input.rs` as `INPUT`.
+
+For testing, you can run:
+
+```sh
+cargo test --release -p aoc-yyyy-dd
 ```
 
 ### Python
@@ -48,6 +56,44 @@ python name_of_file.py
 Some solutions may have their main file named as `test_xxx.py` or similar so to save
 time on separating PyTest code from the main solution code; while not ideal, this is
 done for expediency.
+
+### C
+
+Some problems have C implementations for learning purposes. These folders are suffixed with `-c`.
+
+To compile and run a C solution, navigate to the respective day's directory and use:
+
+```sh
+cat input.txt | make run
+```
+
+Typically, `FLAGS` will be available to set optimization levels or other compiler flags,
+with `VERBOSE` being the most common to enable detailed output.
+
+You can enable this by:
+
+```sh
+cat input.txt | FLAGS=VERBOSE make run
+```
+
+In contrast to their Rust counterparts, these C solutions are designed to read input
+from `stdin` for no particular reason other than expediency.
+
+Most C modules contains their own `int main()` function that acts as a unit test
+when run. Some requires `stdin` input to function properly. You can run tests for the
+`func.c` module by:
+
+```sh
+ACTION=func FLAGS="UNIT_TEST VERBOSE" make run
+```
+
+`VERBOSE` here is optional, but useful for debugging.
+
+There is also a unified `make test` target that will run all tests for the module:
+
+```sh
+make test
+```
 
 ## Documentation
 

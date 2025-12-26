@@ -1,6 +1,5 @@
 ACTION ?= main
 OUTPUT=$(ACTION).out
-FLAGS ?= PROD
 DFLAGS = $(foreach flag,$(FLAGS),-D$(flag))
 
 build:
