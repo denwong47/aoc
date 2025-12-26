@@ -3,7 +3,7 @@ OUTPUT=$(ACTION).out
 DFLAGS = $(foreach flag,$(FLAGS),-D$(flag))
 
 build:
-	gcc -o $(OUTPUT) $(DFLAGS) ./$(ACTION).c
+	gcc -o $(OUTPUT) $(DFLAGS) ./$(ACTION).c -lm
 
 run_only:
 	@./$(OUTPUT)

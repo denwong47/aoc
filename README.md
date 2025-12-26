@@ -1,5 +1,8 @@
 # Advent of Code Solutions
 
+![Rust CI](https://github.com/denwong47/aoc/actions/workflows/rust.yml/badge.svg)
+| ![C CI](https://github.com/denwong47/aoc/actions/workflows/c.yml/badge.svg)
+
 This repository contains my solutions for [Advent of Code](https://adventofcode.com),
 implemented primarily in Rust. Each day's solution is organized as a separate crate,
 following the naming convention `aoc-yyyy-dd` (e.g., `aoc-2025-01` for Day 1 of 2025).
