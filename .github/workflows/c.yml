@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        folder: ["aoc-2025-02-c", "aoc-2025-03-c"]
+        folder: ["aoc-2025-02-c", "aoc-2025-03-c", "aoc-2025-05-c"]
 
     runs-on: ubuntu-latest
 
