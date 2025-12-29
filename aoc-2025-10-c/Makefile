@@ -1,7 +1,23 @@
 ACTION ?= main
 CC ?= gcc
 OUTPUT=$(ACTION).out
-OBJECTS ?= compare.o consolidate.o func.o parse.o range.o utils.o
+OBJECTS ?= \
+	utils/log.o \
+	utils/numbers.o \
+	utils/str.o \
+	parse/bracket.o \
+	parse/line.o \
+	types/combinations.o \
+	types/order.o \
+	types/scenario.o \
+	types/solution.o \
+	types/validate.o \
+	types/vector.o \
+	solve/bisect.o \
+	solve/brute.o \
+	solve/common.o \
+	solve/mask.o
+
 OBJECTS_WITHOUT_ACTION = $(filter-out $(ACTION).o, $(OBJECTS))
 DFLAGS = $(foreach flag,$(FLAGS),-D$(flag))
 
@@ -30,4 +46,4 @@ test: clean
 	done
 
 clean:
-	rm -f $(OBJECTS)
+	@rm -f $(OBJECTS)
