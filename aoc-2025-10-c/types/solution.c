@@ -112,6 +112,23 @@ void multiply_solution(Solution* solution, USIZE amount) {
 }
 
 /*
+ * @brief Print the solution at the chosen log level with the supplied prefix.
+ */
+void display_solution(LogLevel level, STRING prefix, Solution* solution) {
+    if (should_log(level)) {
+        log_to_stderr_with_sep_without_ln(level, "%s", prefix);
+        write_to_stderr("\x1b[1m[");
+        for (USIZE index=0; index<solution->button_count; index++) {
+            write_to_stderr("%u", solution->presses[index]);
+            if (index+1<solution->button_count) {
+                write_to_stderr(",");
+            }
+        }
+        write_to_stderr("]\x1b[22m\n");
+    }
+}
+
+/*
  * @brief Free a `Solution` from memory.
  */
 void free_solution(Solution* solution) {

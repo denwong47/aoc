@@ -22,6 +22,7 @@
 #define NUMBER unsigned int
 
 #define USIZE unsigned short
+#define USIZE_MAX USHRT_MAX
 #define STRING char*
 
 #endif

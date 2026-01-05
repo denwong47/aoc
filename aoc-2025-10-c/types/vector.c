@@ -124,6 +124,18 @@ Vector vector_from_button(Button* button) {
 }
 
 /*
+ * @brief Check if the vector contains any value higher than threshold.
+ */
+bool has_value_higher_than(Vector* vector, USIZE threshold) {
+    for (USIZE index=0; index < vector->dimensions; index++) {
+        if (vector->target[index] > threshold) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/*
  * @brief Check if a vector matches a mask.
  */
 ExecutionStatus is_vector_matching_mask(Vector* vector, Button* mask) {
@@ -552,7 +564,6 @@ void assert_vector_op(
     free(lhs.target);
     free(rhs.target);
     free(expected.target);
-
 }
 
 void test_vector_ops() {

@@ -27,6 +27,7 @@ void empty_vector(Vector* vector);
 Vector clone_vector(Vector* vector);
 void display_vector(LogLevel level, STRING prefix, Vector* vector);
 Vector vector_from_button(Button* button);
+bool has_value_higher_than(Vector* vector, USIZE threshold);
 ExecutionStatus is_vector_matching_mask(Vector* vector, Button* mask);
 ExecutionStatus add_to_vector(Vector* vector, Button* button_press);
 ExecutionStatus add_scalar_to_vector_upto(Vector* vector, USIZE amount, Vector* limit);

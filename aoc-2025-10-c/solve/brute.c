@@ -21,7 +21,7 @@ ExecutionStatus _dfs_from(
         return SUCCESS;
     }
 
-    log_to_stderr(INFO, "DFS at depth \x1b[1m%u\x1b[0m...", current_depth);
+    log_to_stderr(DEBUG, "DFS at depth \x1b[1m%u\x1b[0m...", current_depth);
     ExecutionStatus status;
     ExecutionStatus final_status = NO_SOLUTION;
     Order order = new_order(scenario->button_count);
@@ -98,9 +98,9 @@ ExecutionStatus _dfs_from(
 
     free_order(&order);
     if (final_status==NO_SOLUTION) {
-        log_to_stderr(DEBUG, "DFS at depth \x1b[1m%u\x1b[0m found no solution, backtracking.", current_depth);
+        log_to_stderr(TRACE, "DFS at depth \x1b[1m%u\x1b[0m found no solution, backtracking.", current_depth);
     } else if (final_status==SUCCESS) {
-        log_to_stderr(INFO, "DFS at depth \x1b[1m%u\x1b[0m found a solution, passing back up the chain.", current_depth);
+        log_to_stderr(DEBUG, "DFS at depth \x1b[1m%u\x1b[0m found a solution, passing back up the chain.", current_depth);
     }
     return final_status;
 }
