@@ -186,6 +186,14 @@ fn main() {
                 let solution = machine
                     .solve_milp(&machine.joltage.values)
                     .expect("No solution found");
+                println!("Line: \x1b[1m{}\x1b[22m", line);
+                println!("MILP Solution has {} presses: \x1b[32m{:?}\x1b[0m", solution.len(), solution.iter().fold(
+                    vec![0; machine.buttons.len()],
+                    |mut acc, button_id| {
+                        acc[*button_id] += 1;
+                        acc
+                    }
+                ));
                 solution.len()
             })
             .sum::<usize>();

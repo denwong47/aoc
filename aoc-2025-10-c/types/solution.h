@@ -18,6 +18,7 @@ ExecutionStatus parse_solution_from_numbers(STRING input, Solution* solution);
 ExecutionStatus combined_solutions(Solution* lhs, Solution* rhs);
 PRESS_AMOUNT press_count(Solution* solution);
 void multiply_solution(Solution* solution, USIZE amount);
+void display_solution(LogLevel level, STRING prefix, Solution* solution);
 void free_solution(Solution* solution);
 
 #endif

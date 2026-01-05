@@ -13,7 +13,7 @@ We can introduce heuristics to educate the BFS a bit better, but for the most pa
 > [!TIP]
 > The only interesting part is that we need a Generator struct for these combinations, as `Itertools::combinations` do not exist in C. Coming from Rust where `impl<'p, T> Iterator<item=&'p T> for MyGenerator<'p, T>` for a custom struct is a common pattern, this was not too hard, but it was good to have a go nonetheless.
 
-## Part 2 Methodology (it doesn't work)
+## Part 2 - Attempt 1 Methodology (it doesn't work)
 
 Since the problem was NP-hard, Reddit went straight to Z3 and CBC, which as we found in Rust, did solve the problem in incredible speed. However there was a post in the following day that intrigued me - it suggested using Part 1 to solve Part 2.
 
@@ -49,7 +49,7 @@ There are two reasons why this won't work:
 - *Parity*: This approach assumes the parity for `R` is the same as the global solution, which is not true. In the above example, we have a button for `(2,3)` and separate buttons for `(2)` and `(3)`; it is possible that `R` calls for `(2)` on its own, and `{'u,'v,'x,'y}` requires `(3)`, but when combined as a global solution a single press of `(2,3)` would have been more efficient.
 - *Unsolvable*: The above parity problem also makes some of `R` unsolvable. Since we have transformed the problem into different ones, it is possible that `R` never existed since no button presses could have arrived at something like `{1,0,0,0}` at all.
 
-## Further Ideas
+## Part 2 - Attempt 2 Methodology (you guessed it, doesn't work)
 
 Despite all that, there is still clear value in the `2S => {2u,2v,2x,2y}` observation. The problem we encountered is for the parity, not the concept of division itself; so it is possible that we can look at the problem in a different way:
 
@@ -58,3 +58,14 @@ Despite all that, there is still clear value in the `2S => {2u,2v,2x,2y}` observ
 Where none of `'u,'v,'x,'y` exceeds a certain constant of `C`, and both `{'u,'v,'x,'y}` and `{'u,'v,'x,'y} + R` have solutions.
 
 It is hoped that in this approach, the parity of `{u,v,x,y}` will be preserved in `{'u,'v,'x,'y} + R`, and the solutions shall be the same. What we need to do however is to iterate on `C`, which requires 2 DFS per iteration to confirm if both sides have answers. However if we start with sufficiently small `C` (e.g. 5), then the DFS should not take long at all.
+
+## Why it doesn't work V2
+
+For the most part, this solution works a lot better than the previous one, but the parity problem remains unsolved to some degree.
+
+Imagine a similar situation as above: we have a button for `(2,3)` and separate buttons for `(2)` and `(3)`, then some other buttons of `(1,3)` and `(1,2)`. Either solutions can choose to prefer `(2)` + `(1,3)` or `(3)` + `(1,2)`, which from their perpectives would do exactly the same thing; however:
+
+- if they both choose the same, then the resultant solution would have a stack of `(2)` or `(3)` which would not have been optimisable; or
+- if they choose differently, now we might have `n * (2) + n * (3)` which should have been merged into `n * (2,3)` instead.
+
+When this situation does not exist, it solves solutions with few (<=5) buttons reasonably well, even if the vector lengths are 200+. For higher button counts, if it starts off from the wrong leg in DFS, the process would not return; this is down to DFS inefficiencies, which would take memoization + IDA* to improve. The current heuristics is showing its limits as well, as being greedy in euclidean distance does not always result in a solution.

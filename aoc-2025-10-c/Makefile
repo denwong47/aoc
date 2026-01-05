@@ -15,6 +15,7 @@ OBJECTS ?= \
 	types/vector.o \
 	solve/bisect.o \
 	solve/brute.o \
+	solve/divide.o \
 	solve/common.o \
 	solve/mask.o
 
@@ -23,7 +24,7 @@ DFLAGS = $(foreach flag,$(FLAGS),-D$(flag))
 
 build: clean $(OBJECTS)
 	@echo Building \\x1b[1m$(OUTPUT)\\x1b[0m with "\\x1b[1m$(DFLAGS)\\x1b[0m"...
-	@$(CC) $(OBJECTS) $(DFLAGS) -o $(OUTPUT) $(ACTION).c
+	@$(CC) $(OBJECTS) $(DFLAGS) -o $(OUTPUT) $(ACTION).c -lm
 
 %.o: %.c
 	@echo Building \\x1b[1m$@\\x1b[0m with \\x1b[1m$(DFLAGS)\\x1b[0m...

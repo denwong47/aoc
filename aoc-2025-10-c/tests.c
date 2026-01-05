@@ -10,6 +10,7 @@
 #include "./solve/brute.h"
 #include "./solve/bisect.h"
 #include "./solve/mask.h"
+#include "./solve/divide.h"
 
 int main() {
     test_log();
@@ -34,8 +35,12 @@ int main() {
 
     test_combinations();
     test_bfs_for_mask();
-    // test_brute();
+    test_brute();
     test_bisection();
+
+    test_chunk_vector();
+    test_find_optimal_chunks();
+    test_division();
 
     return 0;
 }
