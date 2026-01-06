@@ -1,17 +1,17 @@
 //! The actual definition of [`AccumulativeHashSet`], a set model for accumulative hashing.
 //!
 
+use crate::{AccumulativeHash, IsAccumulativeHashType};
 use nohash::BuildNoHashHasher;
-use std::hash::{Hash, BuildHasher};
-use crate::{IsAccumulativeHashType, AccumulativeHash};
+use std::hash::{BuildHasher, Hash};
 
 /// A set model using [`HashSet`] for accumulative hash types.
-/// 
+///
 /// This is a convenience wrapper around [`AccumulativeHash`] to track visited,
 /// order-independent paths in a DFS-like traversal. It uses a [`HashSet`] with a
 /// [`NoHashHasher`] to store and compare visited states efficiently,
 /// and uses an internal stack to manage the current path for backtracking.
-/// 
+///
 /// [`HashSet`]: std::collections::HashSet
 /// [`NoHashHasher`]: nohash::NoHashHasher
 pub struct AccumulativeHashSet<T>
@@ -53,7 +53,7 @@ where
 
     /// Checks if an element, if added to the current hash state, would lead to a
     /// previously visited state.
-    /// 
+    ///
     /// This does not mutate the hash state, only checks for presence.
     pub fn contains_path_to<S: Into<T> + Copy>(&self, element: S) -> bool {
         let final_state = self.hasher.and_hash(element);
@@ -61,10 +61,10 @@ where
     }
 
     /// Advance the hash state by adding an element.
-    /// 
+    ///
     /// If the resulting state has been seen before, rollback the hash state and return `false`.
     /// Otherwise return `true`.
-    /// 
+    ///
     /// This mutates the hash state, but does not mark the state as visited; this is done
     /// by [`insert`].
     pub fn transverse_to<S: Into<T> + Copy>(&mut self, element: S) -> bool {
@@ -80,7 +80,6 @@ where
         }
     }
 
-
     /// Backtrack the last added element, reverting the hash state.
     ///
     /// This does NOT mark the state as visited.
@@ -94,7 +93,7 @@ where
     }
 
     /// Mark the current hash state as visited and backtrack the last added element.
-    /// 
+    ///
     /// This is a convenience method that combines marking the current state as visited
     /// and backtracking.
     pub fn visit_and_backtrack(&mut self) -> bool {

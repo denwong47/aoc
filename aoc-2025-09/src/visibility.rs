@@ -73,7 +73,6 @@
 use crate::models::{Coords, IndexedCoords, VisibilityBounds};
 use itertools::Itertools;
 
-
 #[derive(Debug, PartialEq, Eq)]
 pub enum Direction {
     Left = 0,

@@ -1,6 +1,5 @@
 use simple_graph::traits;
 
-
 pub type DeviceId = u32;
 pub type Distance = u32;
 
@@ -73,9 +72,9 @@ impl<'s> traits::IsNodeWithIndexedNeighbours<'s, DeviceId, u32> for Device {
         index: usize,
         get_node_by_key: impl Fn(&DeviceId) -> Option<&'s Self>,
     ) -> Option<(&'s Self, u32)> {
-        self.connected_devices.get(index).and_then(|neighbour_id| {
-            get_node_by_key(neighbour_id).map(|node| (node, 1))
-        })
+        self.connected_devices
+            .get(index)
+            .and_then(|neighbour_id| get_node_by_key(neighbour_id).map(|node| (node, 1)))
     }
 }
 
@@ -84,8 +83,8 @@ pub fn invert_device_map(map: &DeviceMap) -> DeviceMap {
 
     for (device_id, device) in map.iter() {
         inverted
-                .entry(*device_id)
-                .or_insert_with(|| Device::new_empty(*device_id));
+            .entry(*device_id)
+            .or_insert_with(|| Device::new_empty(*device_id));
         for neighbour_id in device.connected_devices.iter() {
             inverted
                 .entry(*neighbour_id)
@@ -122,19 +121,72 @@ mod test_invert_device_map {
         let devices = parse::text_to_devices(INPUT).expect("Failed to parse devices from input");
         let inverted = invert_device_map(&devices);
 
-        assert_eq!(inverted[&parse::str_to_device_id("svr")].connected_devices.len(), 0);
-        assert_eq!(inverted[&parse::str_to_device_id("aaa")].connected_devices, vec![parse::str_to_device_id("svr")]);
-        assert_eq!(inverted[&parse::str_to_device_id("bbb")].connected_devices, vec![parse::str_to_device_id("svr")]);
-        assert_eq!(inverted[&parse::str_to_device_id("fft")].connected_devices, vec![parse::str_to_device_id("aaa")]);
-        assert_eq!(inverted[&parse::str_to_device_id("tty")].connected_devices, vec![parse::str_to_device_id("bbb")]);
-        assert_eq!(inverted[&parse::str_to_device_id("ccc")].connected_devices, vec![parse::str_to_device_id("fft"), parse::str_to_device_id("tty")]);
-        assert_eq!(inverted[&parse::str_to_device_id("ddd")].connected_devices, vec![parse::str_to_device_id("ccc")]);
-        assert_eq!(inverted[&parse::str_to_device_id("eee")].connected_devices, vec![parse::str_to_device_id("ccc")]);
-        assert_eq!(inverted[&parse::str_to_device_id("hub")].connected_devices, vec![parse::str_to_device_id("ddd")]);
-        assert_eq!(inverted[&parse::str_to_device_id("dac")].connected_devices, vec![parse::str_to_device_id("eee")]);
-        assert_eq!(inverted[&parse::str_to_device_id("fff")].connected_devices, vec![parse::str_to_device_id("hub"), parse::str_to_device_id("dac")]);
-        assert_eq!(inverted[&parse::str_to_device_id("ggg")].connected_devices, vec![parse::str_to_device_id("fff")]);
-        assert_eq!(inverted[&parse::str_to_device_id("hhh")].connected_devices, vec![parse::str_to_device_id("fff")]);
-        assert_eq!(inverted[&parse::str_to_device_id("out")].connected_devices, vec![parse::str_to_device_id("ggg"), parse::str_to_device_id("hhh")]);
-    }       
+        assert_eq!(
+            inverted[&parse::str_to_device_id("svr")]
+                .connected_devices
+                .len(),
+            0
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("aaa")].connected_devices,
+            vec![parse::str_to_device_id("svr")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("bbb")].connected_devices,
+            vec![parse::str_to_device_id("svr")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("fft")].connected_devices,
+            vec![parse::str_to_device_id("aaa")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("tty")].connected_devices,
+            vec![parse::str_to_device_id("bbb")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("ccc")].connected_devices,
+            vec![
+                parse::str_to_device_id("fft"),
+                parse::str_to_device_id("tty")
+            ]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("ddd")].connected_devices,
+            vec![parse::str_to_device_id("ccc")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("eee")].connected_devices,
+            vec![parse::str_to_device_id("ccc")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("hub")].connected_devices,
+            vec![parse::str_to_device_id("ddd")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("dac")].connected_devices,
+            vec![parse::str_to_device_id("eee")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("fff")].connected_devices,
+            vec![
+                parse::str_to_device_id("hub"),
+                parse::str_to_device_id("dac")
+            ]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("ggg")].connected_devices,
+            vec![parse::str_to_device_id("fff")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("hhh")].connected_devices,
+            vec![parse::str_to_device_id("fff")]
+        );
+        assert_eq!(
+            inverted[&parse::str_to_device_id("out")].connected_devices,
+            vec![
+                parse::str_to_device_id("ggg"),
+                parse::str_to_device_id("hhh")
+            ]
+        );
+    }
 }

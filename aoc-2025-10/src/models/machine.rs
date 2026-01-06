@@ -7,9 +7,8 @@ use fxhash::FxHashSet;
 
 use super::{Button, Indicators, Joltage};
 
-#[cfg(feature="milp")]
-use good_lp::{variables, variable, default_solver, SolverModel, Solution, Variable, Expression};
-
+#[cfg(feature = "milp")]
+use good_lp::{Expression, Solution, SolverModel, Variable, default_solver, variable, variables};
 
 #[cfg(feature = "progress")]
 use kdam::{BarExt, tqdm};
@@ -107,24 +106,25 @@ impl Machine {
     }
 
     /// Solve the Machine using Mixed Integer Linear Programming (MILP).
-    /// 
+    ///
     /// Or more specifically, call someone else's MILP solver to do the heavy lifting.
     /// I honestly have no idea how this works, we define the problem and call `solve()`
     /// and things just work. This is very depressing and defeating. Not cool.
-    #[cfg(feature="milp")]
+    #[cfg(feature = "milp")]
     pub fn solve_milp(&self, target: &CountArray<u16>) -> anyhow::Result<Vec<usize>> {
         let mut vars = variables!();
-    
+
         // 1. Create a variable for each mask type (how many times to use it)
         // We assume masks are unique.
         let mask_counts: Vec<Variable> = (0..self.buttons.len())
-            .map(|_| vars.add(variable().min(0).integer())) 
+            .map(|_| vars.add(variable().min(0).integer()))
             .collect();
 
         // 2. Define the objective: Minimize total count
         let objective = mask_counts.iter().sum::<Expression>();
-    
-        let mut problem = vars.maximise(objective * -1) // Minimizing is maximizing negative
+
+        let mut problem = vars
+            .maximise(objective * -1) // Minimizing is maximizing negative
             .using(default_solver); // or specific solver
 
         // 3. Add constraints for each column (0 to N-1)
@@ -140,7 +140,9 @@ impl Machine {
         }
 
         // 4. Solve
-        let solution = problem.solve().map_err(|e| anyhow::anyhow!("MILP solve error: {}", e))?;
+        let solution = problem
+            .solve()
+            .map_err(|e| anyhow::anyhow!("MILP solve error: {}", e))?;
 
         // 5. Extract solution
         let mut result: Vec<usize> = Vec::new();
@@ -155,7 +157,7 @@ impl Machine {
     }
 
     /// Solve the Machine using a depth-first search approach.
-    /// 
+    ///
     /// This is optimized to avoid revisiting already explored combinations.
     pub fn solve_dfs(&self, target: &CountArray<u16>) -> anyhow::Result<Vec<usize>> {
         #[cfg(feature = "progress")]
@@ -317,7 +319,7 @@ mod test_solve {
     macro_rules! create_test {
         ($name:ident($input:expr) = $expected:expr) => {
             #[test]
-            #[cfg(feature="milp")]
+            #[cfg(feature = "milp")]
             fn $name() {
                 let machine = Machine::new_from_input($input).expect("Failed to parse Machine");
                 let solution = machine
@@ -346,8 +348,12 @@ mod test_solve {
                 let expected_state = Button::combine(
                     expected.iter().map(|id| &machine.buttons[*id]),
                     machine.indicators.len(),
-                ).expect("Failed to combine expected buttons");
-                assert_eq!(expected_state, machine.joltage.values, "Final state from model answer does not match expected state");
+                )
+                .expect("Failed to combine expected buttons");
+                assert_eq!(
+                    expected_state, machine.joltage.values,
+                    "Final state from model answer does not match expected state"
+                );
 
                 assert_eq!(solution, expected, "Solution does not match expected");
             }
@@ -356,8 +362,7 @@ mod test_solve {
 
     create_test!(
         test_example_1("[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}") =
-            vec![0, 1, 1, 1, 1, 1, 3, 4, 4, 4]
-            // vec![0, 1, 1, 1, 1, 3, 3, 4, 4, 5] // The listed answer is actually [0, 1, 1, 1, 3, 3, 3, 4, 5, 5] - but both yield the same final state, and our solver happens to find this one.
+            vec![0, 1, 1, 1, 1, 1, 3, 4, 4, 4] // vec![0, 1, 1, 1, 1, 3, 3, 4, 4, 5] // The listed answer is actually [0, 1, 1, 1, 3, 3, 3, 4, 5, 5] - but both yield the same final state, and our solver happens to find this one.
     );
     create_test!(
         test_example_2("[...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}") =
@@ -372,7 +377,8 @@ mod test_solve {
             vec![0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2]
     );
     create_test!(
-        test_input_2("[...##.] (0,1,2,4,5) (0,2,5) (0,1,5) (0,2,3,4) (0,4) {29,14,21,4,18,21}") = 
-            vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4]
+        test_input_2("[...##.] (0,1,2,4,5) (0,2,5) (0,1,5) (0,2,3,4) (0,4) {29,14,21,4,18,21}") = vec![
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4
+        ]
     );
 }

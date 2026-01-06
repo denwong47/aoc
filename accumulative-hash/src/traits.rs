@@ -61,7 +61,7 @@ where
     /// and using [`Ordering::Release`] makes the successful load [`Ordering::Relaxed`].
     /// The ``failure`` ordering can only be [`Ordering::SeqCst`], [`Ordering::Acquire`]
     /// or [`Ordering::Relaxed`].
-    /// 
+    ///
     /// [`compare_exchange`]: `Self::compare_exchange`
     fn compare_exchange(
         &self,
