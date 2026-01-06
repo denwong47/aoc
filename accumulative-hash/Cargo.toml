@@ -4,7 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
+default = ["set"]
 atomic = []
+set = ["fxhash", "nohash"]
+fxhash = ["dep:fxhash"]
+nohash = ["dep:nohash"]
 
 [dependencies]
+fxhash = { version = "0.2.1", optional = true }
+nohash = { version = "0.2.0", optional = true }
 num-traits = "0.2.19"
