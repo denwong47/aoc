@@ -1,5 +1,5 @@
-use std::os::raw::{c_uint, c_ulong, c_ushort};
 use accumulative_hash::AccumulativeHashSet;
+use std::os::raw::{c_uint, c_ulong, c_ushort};
 
 pub type CItem = c_uint;
 pub type CBool = c_ushort;
@@ -62,9 +62,7 @@ pub extern "C" fn hash_set_transverse_to(
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn hash_set_backtrack(
-    ptr: *mut CAccumulativeHashSetU64,
-) -> CBool {
+pub extern "C" fn hash_set_backtrack(ptr: *mut CAccumulativeHashSetU64) -> CBool {
     let set = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -73,9 +71,7 @@ pub extern "C" fn hash_set_backtrack(
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn hash_set_visit_and_backtrack(
-    ptr: *mut CAccumulativeHashSetU64,
-) -> CBool {
+pub extern "C" fn hash_set_visit_and_backtrack(ptr: *mut CAccumulativeHashSetU64) -> CBool {
     let set = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -85,7 +81,9 @@ pub extern "C" fn hash_set_visit_and_backtrack(
 
 #[unsafe(no_mangle)]
 pub extern "C" fn free_hash_set(ptr: *mut CAccumulativeHashSetU64) {
-    if ptr.is_null() { return; }
+    if ptr.is_null() {
+        return;
+    }
     unsafe {
         // Take ownership back from C and let Box drop it
         drop(Box::from_raw(ptr));

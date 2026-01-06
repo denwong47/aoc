@@ -1,6 +1,7 @@
 ACTION ?= main
 CC ?= gcc
 OUTPUT=$(ACTION).out
+C_ACCUMULATIVE_HASH_SET_DIR := $$(pwd)/../c-bindings/c-accumulative-hash-set/dylib
 OBJECTS ?= \
 	utils/log.o \
 	utils/numbers.o \
@@ -17,22 +18,24 @@ OBJECTS ?= \
 	solve/brute.o \
 	solve/divide.o \
 	solve/common.o \
-	solve/mask.o
+	solve/mask.o \
 
 OBJECTS_WITHOUT_ACTION = $(filter-out $(ACTION).o, $(OBJECTS))
 DFLAGS = $(foreach flag,$(FLAGS),-D$(flag))
 
-C_ACCUMULATIVE_HASH_SET_DIR := ../c-bindings/c-accumulative-hash-set/dylib
-
-
-build: clean $(OBJECTS)
+	
+build: clean $(C_ACCUMULATIVE_HASH_SET_DIR)/libc_accumulative_hash_set.so $(OBJECTS)
 	@echo Building \\x1b[1m$(OUTPUT)\\x1b[0m with "\\x1b[1m$(DFLAGS)\\x1b[0m"...
 	@$(CC) $(OBJECTS) $(DFLAGS) $(ACTION).c \
 		-lm \
 		-I$(C_ACCUMULATIVE_HASH_SET_DIR) \
 		-L$(C_ACCUMULATIVE_HASH_SET_DIR) \
 		-lc_accumulative_hash_set \
+		-Wl,-rpath,$(C_ACCUMULATIVE_HASH_SET_DIR) \
 		-o $(OUTPUT)
+
+$(C_ACCUMULATIVE_HASH_SET_DIR)/libc_accumulative_hash_set.so:
+	@$(MAKE) -C ../c-bindings/c-accumulative-hash-set build
 
 %.o: %.c
 	@echo Building \\x1b[1m$@\\x1b[0m with \\x1b[1m$(DFLAGS)\\x1b[0m...

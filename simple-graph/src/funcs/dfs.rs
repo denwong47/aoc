@@ -288,20 +288,26 @@ where
             }
             None => {
                 // Backtrack
-                let _popped = tracker.pop().expect("Unreachable; memo length checked above");
-                
+                let _popped = tracker
+                    .pop()
+                    .expect("Unreachable; memo length checked above");
+
                 #[cfg(feature = "trace")]
                 {
-                    let path_to_node = tracker
-                    .iter()
-                    .map(|n| n.node.id())
-                    .collect::<Vec<&'s K>>();
-                    eprintln!("Backtracking from node {:?} to path {:?}", _popped.node.id(), path_to_node);
+                    let path_to_node = tracker.iter().map(|n| n.node.id()).collect::<Vec<&'s K>>();
+                    eprintln!(
+                        "Backtracking from node {:?} to path {:?}",
+                        _popped.node.id(),
+                        path_to_node
+                    );
                 }
-            
+
                 if tracker.len() > 0 {
                     // We should update the memoization for the last node in the tracker, even if the count is zero
-                    let count_from_popped = memoized_counts_by_node.get(&_popped.node.id()).copied().unwrap_or_default();
+                    let count_from_popped = memoized_counts_by_node
+                        .get(&_popped.node.id())
+                        .copied()
+                        .unwrap_or_default();
                     let last_node = tracker
                         .last()
                         .expect("Unreachable; memo length checked above");
@@ -421,26 +427,26 @@ mod tests_dfs {
         use super::*;
 
         pub const CONNECTIONS: &[(u8, u8, u32)] = &[
-            (1,2,1),
-            (1,3,1),
-            (2,3,1),
-            (2,4,1),
-            (3,5,1),
-            (2,5,2),
-            (3,4,2),
-            (5,4,1),
-            (4,6,1),
-            (5,6,1),
-            (6,7,1),
-            (6,8,1),
-            (7,8,1),
-            (7,9,1),
-            (8,10,1),
-            (7,10,2),
-            (8,9,2),
-            (10,9,1),
-            (9,11,1),
-            (10,11,1),
+            (1, 2, 1),
+            (1, 3, 1),
+            (2, 3, 1),
+            (2, 4, 1),
+            (3, 5, 1),
+            (2, 5, 2),
+            (3, 4, 2),
+            (5, 4, 1),
+            (4, 6, 1),
+            (5, 6, 1),
+            (6, 7, 1),
+            (6, 8, 1),
+            (7, 8, 1),
+            (7, 9, 1),
+            (8, 10, 1),
+            (7, 10, 2),
+            (8, 9, 2),
+            (10, 9, 1),
+            (9, 11, 1),
+            (10, 11, 1),
         ];
 
         #[test]

@@ -11,7 +11,15 @@ jobs:
   build:
     strategy:
       matrix:
-        folder: ["aoc-2025-02-c", "aoc-2025-03-c", "aoc-2025-05-c", "aoc-2025-10-c"]
+        requirements:
+        - folder: "aoc-2025-02-c"
+          need-c-bindgen: false
+        - folder: "aoc-2025-03-c"
+          need-c-bindgen: false
+        - folder: "aoc-2025-05-c"
+          need-c-bindgen: false
+        - folder: "aoc-2025-10-c"
+          need-c-bindgen: true
 
     runs-on: ubuntu-latest
 
@@ -19,6 +27,10 @@ jobs:
     - uses: actions/checkout@v4
     - name: Set up C environment
       run: sudo apt update && sudo apt install build-essential
+    - name: Set up CBindgen
+      if: matrix.requirements.need-c-bindgen == true
+      run: |
+        cargo install cbindgen
     - name: Run tests
-      working-directory: ./${{ matrix.folder }}
+      working-directory: ./${{ matrix.requirements.folder }}
       run: FLAGS="VERBOSE UNIT_TEST" make test
