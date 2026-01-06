@@ -186,13 +186,21 @@
 <a href=#186 id=186 data-nosnippet>186</a>                <span class="kw">let </span>solution = machine
 <a href=#187 id=187 data-nosnippet>187</a>                    .solve_milp(<span class="kw-2">&amp;</span>machine.joltage.values)
 <a href=#188 id=188 data-nosnippet>188</a>                    .expect(<span class="string">"No solution found"</span>);
-<a href=#189 id=189 data-nosnippet>189</a>                solution.len()
-<a href=#190 id=190 data-nosnippet>190</a>            })
-<a href=#191 id=191 data-nosnippet>191</a>            .sum::&lt;usize&gt;();
-<a href=#192 id=192 data-nosnippet>192</a>
-<a href=#193 id=193 data-nosnippet>193</a>        <span class="macro">println!</span>(
-<a href=#194 id=194 data-nosnippet>194</a>            <span class="string">"Total buttons pressed across all machines (Part 2): {}"</span>,
-<a href=#195 id=195 data-nosnippet>195</a>            part2
-<a href=#196 id=196 data-nosnippet>196</a>        );
-<a href=#197 id=197 data-nosnippet>197</a>    }
-<a href=#198 id=198 data-nosnippet>198</a>}</code></pre></div></section></main></body></html>
+<a href=#189 id=189 data-nosnippet>189</a>                <span class="macro">println!</span>(<span class="string">"Line: \x1b[1m{}\x1b[22m"</span>, line);
+<a href=#190 id=190 data-nosnippet>190</a>                <span class="macro">println!</span>(<span class="string">"MILP Solution has {} presses: \x1b[32m{:?}\x1b[0m"</span>, solution.len(), solution.iter().fold(
+<a href=#191 id=191 data-nosnippet>191</a>                    <span class="macro">vec!</span>[<span class="number">0</span>; machine.buttons.len()],
+<a href=#192 id=192 data-nosnippet>192</a>                    |<span class="kw-2">mut </span>acc, button_id| {
+<a href=#193 id=193 data-nosnippet>193</a>                        acc[<span class="kw-2">*</span>button_id] += <span class="number">1</span>;
+<a href=#194 id=194 data-nosnippet>194</a>                        acc
+<a href=#195 id=195 data-nosnippet>195</a>                    }
+<a href=#196 id=196 data-nosnippet>196</a>                ));
+<a href=#197 id=197 data-nosnippet>197</a>                solution.len()
+<a href=#198 id=198 data-nosnippet>198</a>            })
+<a href=#199 id=199 data-nosnippet>199</a>            .sum::&lt;usize&gt;();
+<a href=#200 id=200 data-nosnippet>200</a>
+<a href=#201 id=201 data-nosnippet>201</a>        <span class="macro">println!</span>(
+<a href=#202 id=202 data-nosnippet>202</a>            <span class="string">"Total buttons pressed across all machines (Part 2): {}"</span>,
+<a href=#203 id=203 data-nosnippet>203</a>            part2
+<a href=#204 id=204 data-nosnippet>204</a>        );
+<a href=#205 id=205 data-nosnippet>205</a>    }
+<a href=#206 id=206 data-nosnippet>206</a>}</code></pre></div></section></main></body></html>
