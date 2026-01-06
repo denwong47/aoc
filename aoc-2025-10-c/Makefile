@@ -22,9 +22,17 @@ OBJECTS ?= \
 OBJECTS_WITHOUT_ACTION = $(filter-out $(ACTION).o, $(OBJECTS))
 DFLAGS = $(foreach flag,$(FLAGS),-D$(flag))
 
+C_ACCUMULATIVE_HASH_SET_DIR := ../c-bindings/c-accumulative-hash-set/dylib
+
+
 build: clean $(OBJECTS)
 	@echo Building \\x1b[1m$(OUTPUT)\\x1b[0m with "\\x1b[1m$(DFLAGS)\\x1b[0m"...
-	@$(CC) $(OBJECTS) $(DFLAGS) -o $(OUTPUT) $(ACTION).c -lm
+	@$(CC) $(OBJECTS) $(DFLAGS) $(ACTION).c \
+		-lm \
+		-I$(C_ACCUMULATIVE_HASH_SET_DIR) \
+		-L$(C_ACCUMULATIVE_HASH_SET_DIR) \
+		-lc_accumulative_hash_set \
+		-o $(OUTPUT)
 
 %.o: %.c
 	@echo Building \\x1b[1m$@\\x1b[0m with \\x1b[1m$(DFLAGS)\\x1b[0m...
@@ -35,7 +43,7 @@ run_only:
 
 run: build run_only
 
-test: ACTION:=tests
+test: ACTION:=tests try_accumulative_hash_set
 test: FLAGS?=UNIT_TEST
 test:
 test: clean
