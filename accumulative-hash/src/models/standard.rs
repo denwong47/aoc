@@ -26,13 +26,29 @@ impl<T: IsAccumulativeHashType> AccumulativeHash<T> {
         Self { state }
     }
 
+    /// Hash a value without combining it with the current state.
+    /// 
+    /// This is a lower-level operation that allows obtaining the hashed value
+    /// directly. It is the same as calling [`helpers::hash`], or starting a new
+    /// [`AccumulativeHash`] and adding the single value to it.
+    /// 
+    /// The internal state is not used or modified in any way. 
+    /// 
+    /// ## See Also
+    /// 
+    /// - Use [`Self::and_hash`] to obtain the combined hash without modifying state.
+    /// - Use [`Self::add`] to add the value to the current state.
+    pub fn hash<S: Into<T>>(&self, value: S) -> T {
+        helpers::hash::<T, _>(value.into())
+    }
+
     /// Hash a value and combine it with the current state, returning the new hash state,
     /// but not modifying the internal state.
     /// 
     /// This is useful for checking what the hash would be if a value were to be added,
     /// without actually modifying the accumulative hash.
     pub fn and_hash<S: Into<T>>(&self, value: S) -> T {
-        let hashed = helpers::hash::<T, _>(value.into());
+        let hashed = self.hash(value);
         self.state.wrapping_add(&hashed)
     }
 
@@ -44,9 +60,21 @@ impl<T: IsAccumulativeHashType> AccumulativeHash<T> {
     /// This means that adding the same value multiple times will
     /// affect the hash state accordingly.
     pub fn add<S: Into<T>>(&mut self, value: S) -> &T {
-        let hashed = helpers::hash::<T, _>(value.into());
-        self.state = self.state.wrapping_add(&hashed);
+        let hashed = self.hash(value);
+        self.add_hashed(&hashed)
+    }
 
+    /// Add a hashed value to the accumulative hash directly.
+    /// 
+    /// This is a lower-level operation that allows adding a value that has already
+    /// been hashed, without needing to re-hash it.
+    /// 
+    /// ## See Also
+    /// 
+    /// - [`Self::hash`] to hash a value, to be used before calling this method.
+    /// - [`Self::add`] to add a value by hashing it first, which includes this method.
+    pub fn add_hashed(&mut self, hashed_value: &T) -> &T {
+        self.state = self.state.wrapping_add(&hashed_value);
         self.state()
     }
 
@@ -59,9 +87,21 @@ impl<T: IsAccumulativeHashType> AccumulativeHash<T> {
     /// undetermined behavior; it can be fixed by re-adding the value later,
     /// but the intermediate state may not be valid.
     pub fn remove<S: Into<T>>(&mut self, value: S) -> &T {
-        let hashed = helpers::hash::<T, _>(value.into());
-        self.state = self.state.wrapping_sub(&hashed);
+        let hashed = self.hash(value);
+        self.remove_hashed(&hashed)
+    }
 
+    /// Remove a hashed value from the accumulative hash directly.
+    /// 
+    /// This is a lower-level operation that allows removing a value that has already
+    /// been hashed, without needing to re-hash it.
+    /// 
+    /// ## See Also
+    /// 
+    /// - [`Self::hash`] to hash a value, to be used before calling this method.
+    /// - [`Self::remove`] to remove a value by hashing it first, which includes this method.
+    pub fn remove_hashed(&mut self, hashed_value: &T) -> &T {
+        self.state = self.state.wrapping_sub(&hashed_value);
         self.state()
     }
 

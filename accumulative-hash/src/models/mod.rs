@@ -7,3 +7,8 @@ pub use standard::AccumulativeHash;
 mod atomic;
 #[cfg(feature = "atomic")]
 pub use atomic::AtomicAccumulativeHash;
+
+#[cfg(feature = "set")]
+mod set;
+#[cfg(feature = "set")]
+pub use set::*;
