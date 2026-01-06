@@ -24,10 +24,10 @@ pseudorandom number, and then combining these numbers via modular addition.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>accumulative_hash::AccumulativeHash;
 <span class="kw">use </span>std::collections::HashSet; <span class="comment">// other hash set implementations can be used as well
- 
+
 // Assuming your step IDs are u32
 </span><span class="kw">type </span>PathHash = u64;
- 
+
 <span class="kw">fn </span>check_and_mark_path(
     visited: <span class="kw-2">&amp;mut </span>HashSet&lt;PathHash&gt;,
     current_path_hash: PathHash,
@@ -35,17 +35,17 @@ pseudorandom number, and then combining these numbers via modular addition.</p>
     <span class="comment">// True if we've visited this state before, regardless of the order of steps.
     </span>!visited.insert(current_path_hash)
 }
- 
+
 <span class="kw">fn </span>depth_first_search(steps: <span class="kw-2">&amp;</span>[u32]) {
     <span class="kw">let </span><span class="kw-2">mut </span>visited_states = HashSet::&lt;PathHash&gt;::default();
     <span class="kw">let </span><span class="kw-2">mut </span>current_hash_state = AccumulativeHash::&lt;PathHash&gt;::new();
- 
+
     <span class="kw">for </span><span class="kw-2">&amp;</span>step_id <span class="kw">in </span>steps {
         <span class="comment">// 1. Add the step: O(1)
         </span>current_hash_state.add(step_id);
- 
+
         <span class="kw">let </span>path_hash = <span class="kw-2">*</span>current_hash_state.state();
- 
+
         <span class="comment">// 2. Check for visit: O(1) average
         </span><span class="kw">if </span>check_and_mark_path(<span class="kw-2">&amp;mut </span>visited_states, path_hash) {
             <span class="macro">println!</span>(<span class="string">"Path leading to {:X} was already visited!"</span>, path_hash);
@@ -53,7 +53,7 @@ pseudorandom number, and then combining these numbers via modular addition.</p>
         </span>}
          
         <span class="comment">// ... continue DFS ...
- 
+
         // 3. Backtrack (Remove step): O(1)
         // If we were using a recursive DFS, this would happen on return:
         // current_hash_state.remove(step_id);
@@ -75,4 +75,4 @@ The underlying atomic types supported are:</p>
 <li><a href="https://doc.rust-lang.org/1.92.0/core/sync/atomic/struct.AtomicU64.html" title="struct core::sync::atomic::AtomicU64">AtomicU64</a> (Recommended for thread-safe operations with good collision resistance)</li>
 <li><a href="https://doc.rust-lang.org/1.92.0/core/sync/atomic/struct.AtomicUsize.html" title="struct core::sync::atomic::AtomicUsize">AtomicUsize</a> (Based on the target platform’s pointer width)</li>
 </ul>
-</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AccumulativeHash.html" title="struct accumulative_hash::AccumulativeHash">Accumulative<wbr>Hash</a></dt><dd>A struct that remembers the state of a hash as data is added and/or removed from it.</dd><dt><a class="struct" href="struct.AtomicAccumulativeHash.html" title="struct accumulative_hash::AtomicAccumulativeHash">Atomic<wbr>Accumulative<wbr>Hash</a></dt><dd>A struct that remembers the state of a hash as data is added and/or removed from it.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.IsAccumulativeHashType.html" title="trait accumulative_hash::IsAccumulativeHashType">IsAccumulative<wbr>Hash<wbr>Type</a></dt><dd>Trait defining the properties required for an accumulative hash type.</dd><dt><a class="trait" href="trait.IsAtomicAccumulativeHashType.html" title="trait accumulative_hash::IsAtomicAccumulativeHashType">IsAtomic<wbr>Accumulative<wbr>Hash<wbr>Type</a></dt><dd>Trait defining the properties required for an atomic accumulative hash type.</dd></dl></section></div></main></body></html>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AccumulativeHash.html" title="struct accumulative_hash::AccumulativeHash">Accumulative<wbr>Hash</a></dt><dd>A struct that remembers the state of a hash as data is added and/or removed from it.</dd><dt><a class="struct" href="struct.AccumulativeHashSet.html" title="struct accumulative_hash::AccumulativeHashSet">Accumulative<wbr>Hash<wbr>Set</a></dt><dd>A set model using <a href="https://doc.rust-lang.org/1.92.0/std/collections/hash/set/struct.HashSet.html" title="struct std::collections::hash::set::HashSet"><code>HashSet</code></a> for accumulative hash types.</dd><dt><a class="struct" href="struct.AtomicAccumulativeHash.html" title="struct accumulative_hash::AtomicAccumulativeHash">Atomic<wbr>Accumulative<wbr>Hash</a></dt><dd>A struct that remembers the state of a hash as data is added and/or removed from it.</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.IsAccumulativeHashType.html" title="trait accumulative_hash::IsAccumulativeHashType">IsAccumulative<wbr>Hash<wbr>Type</a></dt><dd>Trait defining the properties required for an accumulative hash type.</dd><dt><a class="trait" href="trait.IsAtomicAccumulativeHashType.html" title="trait accumulative_hash::IsAtomicAccumulativeHashType">IsAtomic<wbr>Accumulative<wbr>Hash<wbr>Type</a></dt><dd>Trait defining the properties required for an atomic accumulative hash type.</dd></dl></section></div></main></body></html>
