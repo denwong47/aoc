@@ -1,5 +1,4 @@
 #include "brute.h"
-#include "common.h"
 
 /*
  * @brief Perform a DFS from the current position.
@@ -13,6 +12,8 @@ ExecutionStatus _dfs_from(
     Vector* current_position,
     Vector* destination,
     USIZE current_depth,
+    ITER_COUNTER* iteration_counter,
+    CAccumulativeHashSetU64* visited_set,
     Solution* solution
 ) {
     // Step 0: Empty Vector protection
@@ -21,7 +22,9 @@ ExecutionStatus _dfs_from(
         return SUCCESS;
     }
 
-    log_to_stderr(DEBUG, "DFS at depth \x1b[1m%u\x1b[0m...", current_depth);
+    if ((*iteration_counter) % ITER_LOG_INTERVAL == 0)
+        log_to_stderr(DEBUG, "DFS iteration \x1b[1m%llu\x1b[22m at depth \x1b[1m%u\x1b[22m...", *iteration_counter, current_depth);
+
     ExecutionStatus status;
     ExecutionStatus final_status = NO_SOLUTION;
     Order order = new_order(scenario->button_count);
@@ -55,6 +58,11 @@ ExecutionStatus _dfs_from(
 
         button = &scenario->buttons[order.ids[index]];
 
+        if (!hash_set_transverse_to(visited_set, order.ids[index])) {
+            log_to_stderr(TRACE, "Button \x1b[1m%u\x1b[22m had been visited from the current location, skipping.", order.ids[index]);
+            continue;
+        }
+
         // Step 3: Add the button on top of the current position, and see if we have a solution.
         solution->presses[order.ids[index]]++;
         status = add_to_vector(current_position, button);
@@ -74,12 +82,15 @@ ExecutionStatus _dfs_from(
             log_to_stderr(WARN, "Maximum depth of \x1b[1m%u\x1b[0m reached, stopping recursion.", MAX_PRESSES);
             status = NO_SOLUTION;
         } else {
+            (*iteration_counter)++;
             // We are not there yet, continue DFS...
             status = _dfs_from(
                 scenario,
                 current_position,
                 destination,
                 current_depth+1,
+                iteration_counter,
+                visited_set,
                 solution
             );
         }
@@ -89,6 +100,7 @@ ExecutionStatus _dfs_from(
             // Oops, backtrack!
             solution->presses[order.ids[index]]--;
             status = subtract_from_vector(current_position, button);
+            hash_set_visit_and_backtrack(visited_set);
         } else {
             // If any error or SUCCESS, just return.
             final_status = status;
@@ -123,15 +135,20 @@ ExecutionStatus dfs_from(
 ) {
     Vector current_position = new_vector_with_dimensions(scenario->dimensions);
     empty_vector(&current_position);
+    struct CAccumulativeHashSetU64 *visited_set = new_hash_set();
+    ITER_COUNTER iteration_counter = 0;
 
     ExecutionStatus status = _dfs_from(
         scenario,
         &current_position,
         destination,
         0,
+        &iteration_counter,
+        visited_set,
         solution
     );
     free_vector(&current_position);
+    free_hash_set(visited_set);
     return status;
 }
 

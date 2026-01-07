@@ -73,14 +73,16 @@ ExecutionStatus solve_mask_using_solution_size(
 
         if (status == SUCCESS) {
             log_to_stderr_with_sep_without_ln(INFO, "Found solution of \x1b[1m%u\x1b[22m Buttons ", button_count);
+
             for (USIZE index=0; index<button_count; index++) {
                 solution->presses[combination[index]]++;
-                write_to_stderr("\x1b[1m#%d\x1b[22m", combination[index]);
-                if (index+1<button_count) {
-                    write_to_stderr("+");
-                }
+                if (should_log(INFO)) {
+                    write_to_stderr("\x1b[1m#%d\x1b[22m", combination[index]);
+                    if (index+1<button_count) {
+                        write_to_stderr("+");
+                    }
+                    write_to_stderr("\n");}
             }
-            write_to_stderr("\n");
             break;
         } else if (status != NO_SOLUTION) {
             break;

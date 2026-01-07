@@ -11,7 +11,8 @@
     X(INFO) \
     X(WARN) \
     X(ERROR) \
-    X(CRITICAL)
+    X(CRITICAL) \
+    X(PROFILE)
 
 #define TRACE_COLOUR 8
 #define DEBUG_COLOUR 6
@@ -19,6 +20,7 @@
 #define WARN_COLOUR 11
 #define ERROR_COLOUR 9
 #define CRITICAL_COLOUR 1
+#define PROFILE_COLOUR 165
 
 typedef enum {
     #define AS_ENUM(name) name = name ## _COLOUR,

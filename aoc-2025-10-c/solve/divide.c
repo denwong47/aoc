@@ -1,6 +1,6 @@
 #include "divide.h"
-#include "brute.h"
 
+#define DIVIDE_LOG_LEVEL DEBUG
 /*
  * @brief Mutate an existing `Vector` by dividing it into X chunks.
  *
@@ -101,18 +101,18 @@ ExecutionStatus _solve_by_division(
 
     for (USIZE chunks = find_optimal_chunks(destination); chunks > 0; chunks--) {
         if (chunks == 1 || !has_value_higher_than(destination, MAX_VALUE_IN_VECTOR)) {
-            log_to_stderr(ERROR, "No further division needed at depth \x1b[1m%u\x1b[22m, falling back to DFS...", current_depth);
+            log_to_stderr(DIVIDE_LOG_LEVEL, "No further division needed at depth \x1b[1m%u\x1b[22m, falling back to DFS...", current_depth);
             final_status = dfs_from(scenario, destination, solution);
             break;
         }
 
         vector_init = true;
-        log_to_stderr(ERROR, "Attempting division into \x1b[1m%u\x1b[22m chunks at depth \x1b[1m%u\x1b[22m...", chunks, current_depth);
+        log_to_stderr(DIVIDE_LOG_LEVEL, "Attempting division into \x1b[1m%u\x1b[22m chunks at depth \x1b[1m%u\x1b[22m...", chunks, current_depth);
         quotient = clone_vector(destination);
         remainder = chunk_vector(&quotient, chunks);
-        display_vector(ERROR, "Original Vector:  ", destination);
-        display_vector(ERROR, "Quotient Vector:  ", &quotient);
-        display_vector(ERROR, "Remainder Vector: ", &remainder);
+        display_vector(DIVIDE_LOG_LEVEL, "Original Vector:  ", destination);
+        display_vector(DIVIDE_LOG_LEVEL, "Quotient Vector:  ", &quotient);
+        display_vector(DIVIDE_LOG_LEVEL, "Remainder Vector: ", &remainder);
 
         if (has_value_higher_than(&quotient, MAX_VALUE_IN_VECTOR)) {
             // Recursive mode
@@ -123,8 +123,8 @@ ExecutionStatus _solve_by_division(
 
         // Only run the remainder one if we can solve quotient
         if (quotient_status == SUCCESS) {
-            log_to_stderr(ERROR, "Found solution for quotient with \x1b[32m\x1b[1m%u\x1b[0m presses.", press_count(&quotient_solution));
-            display_solution(ERROR, "Solution: ", &quotient_solution);
+            log_to_stderr(DIVIDE_LOG_LEVEL, "Found solution for quotient with \x1b[32m\x1b[1m%u\x1b[0m presses.", press_count(&quotient_solution));
+            display_solution(DIVIDE_LOG_LEVEL, "Solution: ", &quotient_solution);
             if (has_value_higher_than(&remainder, MAX_VALUE_IN_VECTOR)) {
                 // Recursive mode
                 remainder_status = _solve_by_division(scenario, &remainder, current_depth+1, &remainder_solution);
@@ -133,8 +133,8 @@ ExecutionStatus _solve_by_division(
             }
 
             if (remainder_status == SUCCESS) {
-                log_to_stderr(ERROR, "Found solution for both quotient and remainder at depth \x1b[1m%u\x1b[22m", current_depth);
-                display_solution(ERROR, "Solution: ", &remainder_solution);
+                log_to_stderr(DIVIDE_LOG_LEVEL, "Found solution for both quotient and remainder at depth \x1b[1m%u\x1b[22m", current_depth);
+                display_solution(DIVIDE_LOG_LEVEL, "Solution: ", &remainder_solution);
 
                 multiply_solution(&quotient_solution, chunks-1);
                 remainder_status = combined_solutions(solution, &quotient_solution);
@@ -172,6 +172,16 @@ ExecutionStatus _solve_by_division(
 }
 
 /*
+ * @brief Get the current time stamp in milliseconds precision.
+ */
+int64_t millis()
+{
+    struct timespec now;
+    timespec_get(&now, TIME_UTC);
+    return ((int64_t) now.tv_sec) * 1000 + ((int64_t) now.tv_nsec) / 1000000;
+}
+
+/*
  * @brief Solve bigger `Scenario`s where DFS cannot work within reasonable time.
  */
 ExecutionStatus solve_by_division(
@@ -179,7 +189,21 @@ ExecutionStatus solve_by_division(
     Vector* destination,
     Solution* solution
 ) {
-    return _solve_by_division(scenario, destination, 0, solution);
+    #ifdef LOG_PROFILE
+    int64_t start,end;
+    double dif;
+    start = millis();
+    #endif
+
+    ExecutionStatus status = _solve_by_division(scenario, destination, 0, solution);
+
+    #ifdef LOG_PROFILE
+    end = millis();
+    dif = (double)(end-start) / 1000;
+    log_to_stderr(PROFILE, "Division Solve took \x1b[1m%.3f\x1b[22m seconds.", dif);
+    #endif
+
+    return status;
 }
 
 #ifdef UNIT_TEST
@@ -359,10 +383,18 @@ void test_division() {
         SUCCESS,
         "2,7,20,13,3,2,13,8"
     );
-    // assert_division_solve(
-    //     "[##..#....] (0,1,2,3,6,7,8) (1,2,3) (0,2,3,4,5,6,7,8) (0,2,6,7,8) (0,1,4) (2,3,6) (2,3,4,5,6,7,8) (1,5,6) (0,2,3,7,8) (0,1,4,8) {80,72,68,62,41,18,45,52,71}",
-    //     SUCCESS,
-    //     "21,16,11,6,10,0,1,6,13,19"
-    // );
+    assert_division_solve(
+        "[##..#....] (0,1,2,3,6,7,8) (1,2,3) (0,2,3,4,5,6,7,8) (0,2,6,7,8) (0,1,4) (2,3,6) (2,3,4,5,6,7,8) (1,5,6) (0,2,3,7,8) (0,1,4,8) {80,72,68,62,41,18,45,52,71}",
+        SUCCESS,
+        "21,16,11,6,10,0,1,6,13,19"
+    );
+    assert_division_solve(
+        "[.......#.#] (0,1,3,4,5,6,7,8,9) (0,1,2,3,4,7,8,9) (0,5,6,8) (0,3,5) (4,5,8) (4,6,7,8,9) (2,8) (3,6,7) (0,1) (0,1,2,4,5,6,7,9) (6,7) (0,2,3,4,5,6,7,8,9) {247,209,47,244,247,253,271,268,251,238}",
+        SUCCESS,
+        // // This is the correct solution with 293 presses:
+        // "198,2,5,3,9,0,7,11,1,8,19,30"
+        // // This solution needs 294 presses:
+           "199,0,3,3,9,0,8,10,3,7,20,32"
+    );
 }
 #endif

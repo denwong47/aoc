@@ -26,13 +26,11 @@ ExecutionStatus parse_numbers(STRING input, NUMBER* array, USIZE* count) {
 
         log_to_stderr(TRACE, "At position \x1b[1m%u\x1b[22m, found a number of \x1b[1m%u\x1b[22m.", *count, number);
 
-        if (*count >= MAX_DIM) {
-            log_to_stderr(ERROR, "Only supports upto \x1b[1m%u\x1b[22m dimensions, found at least \x1b[31m\x1b[1m%u\x1b[0m.", MAX_DIM, *count+1);
+        array[(*count)++] = number;
+        if (*count > MAX_NUMBERS) {
+            log_to_stderr(ERROR, "Parsed too many numbers, max is %u.", MAX_NUMBERS);
             return PARSE_DIMENSIONS_OUT_OF_RANGE;
         }
-
-        array[*count] = number;
-        (*count)++;
 
         // Find the next segment
         segment = strtok(NULL, ",");

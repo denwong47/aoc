@@ -10,6 +10,7 @@
 #define TARGET TARGET_AMOUNT*
 #define PRESSES PRESS_AMOUNT*
 #define DISTANCE unsigned long
+#define MAX_NUMBERS 12
 #define MAX_DIM 10
 #define MAX_BUTTONS 12
 #define MAX_PRESSES 384
@@ -24,5 +25,7 @@
 #define USIZE unsigned short
 #define USIZE_MAX USHRT_MAX
 #define STRING char*
+#define ITER_COUNTER unsigned long long
+#define ITER_LOG_INTERVAL 512
 
 #endif

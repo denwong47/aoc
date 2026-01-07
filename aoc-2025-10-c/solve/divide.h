@@ -2,6 +2,7 @@
 #define SOLVE_DIVIDE_H
 
 #include <math.h>
+#include <time.h>
 #include "../types/mod.h"
 #include "brute.h"
 

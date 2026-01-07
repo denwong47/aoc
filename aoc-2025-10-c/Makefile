@@ -23,15 +23,17 @@ OBJECTS ?= \
 OBJECTS_WITHOUT_ACTION = $(filter-out $(ACTION).o, $(OBJECTS))
 DFLAGS = $(foreach flag,$(FLAGS),-D$(flag))
 
-	
+INCLUDE_FLAGS = -I$(C_ACCUMULATIVE_HASH_SET_DIR) \
+		-L$(C_ACCUMULATIVE_HASH_SET_DIR) \
+		-lc_accumulative_hash_set \
+		-Wl,-rpath,$(C_ACCUMULATIVE_HASH_SET_DIR) \
+		-Wno-unused-command-line-argument
+
 build: clean $(C_ACCUMULATIVE_HASH_SET_DIR)/libc_accumulative_hash_set.so $(OBJECTS)
 	@echo Building \\x1b[1m$(OUTPUT)\\x1b[0m with "\\x1b[1m$(DFLAGS)\\x1b[0m"...
 	@$(CC) $(OBJECTS) $(DFLAGS) $(ACTION).c \
 		-lm \
-		-I$(C_ACCUMULATIVE_HASH_SET_DIR) \
-		-L$(C_ACCUMULATIVE_HASH_SET_DIR) \
-		-lc_accumulative_hash_set \
-		-Wl,-rpath,$(C_ACCUMULATIVE_HASH_SET_DIR) \
+		$(INCLUDE_FLAGS) \
 		-o $(OUTPUT)
 
 $(C_ACCUMULATIVE_HASH_SET_DIR)/libc_accumulative_hash_set.so:
@@ -39,7 +41,10 @@ $(C_ACCUMULATIVE_HASH_SET_DIR)/libc_accumulative_hash_set.so:
 
 %.o: %.c
 	@echo Building \\x1b[1m$@\\x1b[0m with \\x1b[1m$(DFLAGS)\\x1b[0m...
-	@$(CC) $(DFLAGS) -c $< -o $@
+	@$(CC) $(DFLAGS) \
+	    -c $< \
+		$(INCLUDE_FLAGS) \
+		-o $@
 
 run_only:
 	@./$(OUTPUT)

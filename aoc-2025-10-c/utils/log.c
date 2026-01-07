@@ -18,11 +18,17 @@ char* log_level_name(LogLevel level) {
  * @brief Return whether we should be logging at the chosen level.
  */
 bool should_log(LogLevel level) {
-    if (ERROR_ONLY && level != ERROR && level != CRITICAL) {
+    if (level == PROFILE) {
+        #ifdef LOG_PROFILE
+        return true;
+        #else
+        return false;
+        #endif
+    } else if (ERROR_ONLY && level != ERROR && level != CRITICAL) {
         // Nothing to log, its not verbose mode.
         return false;
     } else if (level == TRACE) {
-        #ifndef VERBOSE_TRACE
+        #ifndef LOG_TRACE
         // If we didn't specify `VERBOSE_TRACE` level logging, don't bother outputting traces.
         return false;
         #endif
@@ -101,7 +107,8 @@ void test_log() {
         INFO,
         WARN,
         ERROR,
-        CRITICAL
+        CRITICAL,
+        PROFILE
     };
 
     for (unsigned short index=0; index<(sizeof(levels)/sizeof(LogLevel)); index++) {
