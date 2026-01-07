@@ -35,7 +35,7 @@ ExecutionStatus parse_line(STRING input, Scenario* scenario) {
                         free(buffer);
                         return PARSE_LINE_MISSING_COMPONENTS;
                     }
-                    if (scenario->button_count+1 >= MAX_BUTTONS) {
+                    if (scenario->button_count+1 > MAX_BUTTONS) {
                         return INSUFFICIENT_CAPACITY;
                     }
                     Button button = new_button();

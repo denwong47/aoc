@@ -33,7 +33,7 @@ ExecutionStatus parse_indicators(STRING input, Button* indicators) {
                 return SUCCESS;
             case EMPTY_CHAR:
             case FULL_CHAR:
-                log_to_stderr(TRACE, "Found \x1b[1m'%c'\x1b[0m at position \x1b[1m%u\x1b[22m.", input[index], indicators->dimensions);
+                log_to_stderr(TRACE, "Indicators found \x1b[1m'%c'\x1b[0m at position \x1b[1m%u\x1b[22m.", input[index], indicators->dimensions);
                 if (indicators->dimensions >= indicators->capacity) {
                     log_to_stderr(ERROR, "Only supports upto \x1b[1m%u\x1b[22m dimensions, found at least \x1b[31m\x1b[1m%u\x1b[0m.", MAX_DIM, indicators->dimensions+1);
                     return PARSE_DIMENSIONS_OUT_OF_RANGE;
@@ -79,12 +79,16 @@ ExecutionStatus parse_button(STRING input, Button* button, USIZE dimensions) {
     ltrim_one_mut(input, '(');
     rtrim_one_mut(input, ')');
 
-    NUMBER* numbers = (NUMBER*)malloc(MAX_DIM * sizeof(NUMBER));
+    NUMBER* numbers = (NUMBER*)malloc(MAX_NUMBERS * sizeof(NUMBER));
     USIZE parsed_count;
     ExecutionStatus status = parse_numbers(input, numbers, &parsed_count);
     if (status!=SUCCESS) {
         free(numbers);
         return status;
+    } else if (parsed_count > MAX_DIM) {
+        log_to_stderr(ERROR, "Parsed too many numbers, max is %u.", MAX_NUMBERS);
+        free(numbers);
+        return PARSE_DIMENSIONS_OUT_OF_RANGE;
     }
 
     // Sort the numbers to ensure ordering;
@@ -131,7 +135,7 @@ ExecutionStatus parse_vector(STRING input, Vector* vector) {
 
     // We can still afford to parse all of `MAX_DIM`, even if `vector->capacity` is lower,
     // so that we can report that to the user explicitly.
-    NUMBER* numbers = (NUMBER*)malloc(MAX_DIM * sizeof(NUMBER));
+    NUMBER* numbers = (NUMBER*)malloc(MAX_NUMBERS * sizeof(NUMBER));
     USIZE parsed_count;
     ExecutionStatus status = parse_numbers(input, numbers, &parsed_count);
 
@@ -142,7 +146,7 @@ ExecutionStatus parse_vector(STRING input, Vector* vector) {
 
     // Overflow protection
     if (parsed_count > vector->capacity) {
-        log_to_stderr(ERROR, "Provided Vector only has capacity of \x1b[1m%u\x1b[22m dimensions, found \x1b[31m\x1b[1m%u\x1b[22m.", vector->capacity, parsed_count);
+        log_to_stderr(ERROR, "Provided Vector only has capacity of \x1b[1m%u\x1b[22m dimensions, found \x1b[31m\x1b[1m%u\x1b[0m.", vector->capacity, parsed_count);
         return PARSE_DIMENSIONS_OUT_OF_RANGE;
     }
 
@@ -323,10 +327,10 @@ void assert_parse_button(STRING input, ExecutionStatus expected_status, EFFECT e
 void assert_parse_vector(STRING input, ExecutionStatus expected_status, TARGET expected_target, USIZE expected_dimensions) {
     char buffer[MAX_LINE_LENGTH];
     // We have to copy the static string into a mutable buffer due to `strtok`.
-    strncpy(buffer, input, sizeof(buffer));
-
+    
     Vector vector = new_vector();
-
+    
+    strncpy(buffer, input, sizeof(buffer));
     ExecutionStatus actual_status = parse_vector((STRING)&buffer, &vector);
 
     bool success_status = actual_status == expected_status;
@@ -369,7 +373,7 @@ void assert_parse_vector(STRING input, ExecutionStatus expected_status, TARGET e
         assert(success_target);
     }
 
-    free(vector.target);
+    free_vector(&vector);
 }
 
 void test_parse_numbers() {
@@ -387,7 +391,8 @@ void test_parse_numbers() {
     NUMBER expected_10_valid[] = {1,2,3,4,5,6,7,8,9,0};
     assert_parse_numbers("1,2,3,4,5,6,7,8,9,0", SUCCESS, expected_10_valid, 10);
 
-    assert_parse_numbers("1,2,3,4,5,6,7,8,9,10,11", PARSE_DIMENSIONS_OUT_OF_RANGE, invalid_array, 0);
+    // // This check was removed from the function.
+    // assert_parse_numbers("1,2,3,4,5,6,7,8,9,10,11", PARSE_DIMENSIONS_OUT_OF_RANGE, invalid_array, 0);
 
     assert_parse_numbers("1,2,3,4,5,A,7", PARSE_INVALID_NUMBER, invalid_array, 0);
 
@@ -407,8 +412,11 @@ void test_parse_indicators() {
     EFFECT_AMOUNT expected_5_valid[] = {1,1,0,1,1};
     assert_parse_indicators("[##.##]", SUCCESS, expected_5_valid, 5);
 
-    EFFECT_AMOUNT expected_10_valid[] = {0,1,1,0,1,1,1,0,0,0};
-    assert_parse_indicators("[.##.###...]", SUCCESS, expected_10_valid, 10);
+    EFFECT_AMOUNT expected_10_valid_1[] = {0,1,1,0,1,1,1,0,0,0};
+    assert_parse_indicators("[.##.###...]", SUCCESS, expected_10_valid_1, 10);
+
+    EFFECT_AMOUNT expected_10_valid_2[] = {0,0,0,0,0,0,0,1,0,1};
+    assert_parse_indicators("[.......#.#]", SUCCESS, expected_10_valid_2, 10);
 
     assert_parse_indicators("", PARSE_EMPTY_BUFFER, invalid_array, 0);
     assert_parse_indicators("ABC", PARSE_INVALID_BRACKETS, invalid_array, 0);
