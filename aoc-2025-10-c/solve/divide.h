@@ -11,6 +11,12 @@
 
 Vector chunk_vector(Vector* vector, USIZE chunks);
 
+ExecutionStatus solve_by_division(
+    Scenario* scenario,
+    Vector* destination,
+    Solution* solution
+);
+
 #ifdef UNIT_TEST
 #include "common.h"
 #include "../parse/bracket.h"

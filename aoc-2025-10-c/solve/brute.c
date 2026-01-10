@@ -23,7 +23,7 @@ ExecutionStatus _dfs_from(
     }
 
     if ((*iteration_counter) % ITER_LOG_INTERVAL == 0)
-        log_to_stderr(DEBUG, "DFS iteration \x1b[1m%llu\x1b[22m at depth \x1b[1m%u\x1b[22m...", *iteration_counter, current_depth);
+        log_to_stderr(DEBUG, "DFS iteration \x1b[1m%llu\x1b[22m at depth \x1b[1m%u\x1b[22m...\x1b[1A", *iteration_counter, current_depth);
 
     ExecutionStatus status;
     ExecutionStatus final_status = NO_SOLUTION;
@@ -149,6 +149,9 @@ ExecutionStatus dfs_from(
     );
     free_vector(&current_position);
     free_hash_set(visited_set);
+    if (status == NO_SOLUTION) {
+        display_vector(WARN, "No solution found for ", destination);
+    }
     return status;
 }
 

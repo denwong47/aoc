@@ -151,6 +151,8 @@ ExecutionStatus _solve_by_division(
         } else if (quotient_status != NO_SOLUTION) {
             final_status = quotient_status;
             break;
+        } else {
+            log_to_stderr(DEBUG, "No solution found for quotient using \x1b[1m%u\x1b[22m chunks, reducing chunks...", chunks);
         }
 
         empty_solution(&quotient_solution);

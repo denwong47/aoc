@@ -69,3 +69,23 @@ Imagine a similar situation as above: we have a button for `(2,3)` and separate 
 - if they choose differently, now we might have `n * (2) + n * (3)` which should have been merged into `n * (2,3)` instead.
 
 When this situation does not exist, it solves solutions with few (<=5) buttons reasonably well, even if the vector lengths are 200+. For higher button counts, if it starts off from the wrong leg in DFS, the process would not return; this is down to DFS inefficiencies, which would take memoization + IDA* to improve. The current heuristics is showing its limits as well, as being greedy in euclidean distance does not always result in a solution.
+
+## Part 2 - Attempt 3 Methodology (improvements in timing, but some solutions not optimised)
+
+During Attempt 2, it was noticed that proving no solutions exists requires transversal of the full graph, which exponentially scale up to the number of buttons and/or the number of steps. The obvious solution is memoization, but that involves implementing
+
+- Hash Set
+- Additive Commutative Hash
+
+in C, which is a lot of work in itself.
+
+Since those two things already exists in Rust with the latter specifically written for Day 10 and 12, it seems logical to simply provide a CFFI to C, instead of replicating.
+
+This was done, and now solving scenarios with 12 buttons and solutions like `{247,209,47,244,247,253,271,268,251,238}` takes only a second; but the above parity problem still exists, i.e some solutions will be suboptimal (294 presses vs 293 presses) The division strategy also would take some improvements, as certain certain chunking do not have solutions in either quotient or remainder, resulting in a fallback to DFS. While memoization does make it faster, it still exceeds the what is reasonable for a AOC challenge.
+
+IDA* should be considered; it would help with the latter, but since the problem originated from the merging of solutions instead of the DFS step itself, IDA* will still not result in the optimal solution.
+
+Since we have a solution, it is perhaps possible to add an "optimisation" step by descending sorting buttons by their effect counts, then BFS for each button (or button combinations) to look for combinations that can be optimised:
+
+- `(2) + (3) => (2,3)`
+- `(0,1) + (2,3) + (4,5) => (0,1,2) + (3,4,5)`
